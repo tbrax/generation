@@ -1,12 +1,30 @@
 from hero import *
 from game import *
 import wikipedia
+import os
 Mgame = Game()
 
 def getMsg(m,a):
     send = []
     send += Mgame.takeInput(m,a)
     return send
+
+def loadWiki(fname):
+    found = 0
+    for filename in os.listdir("articles"):
+        if filename == fname:
+            print("Document already exists")
+            found = 1
+    if found == 0:
+        try:
+            wka = wikipedia.page(fname)
+            encodedStr = wka.content
+            with open("articles\\"+fname + ".txt", "w", encoding="utf-8") as f:
+                f.write(encodedStr)
+
+        except wikipedia.exceptions.DisambiguationError as e:
+            print(e.options)
+
 
 def main():
     try:
