@@ -28,11 +28,11 @@ class Hero:
         self.buffs = []
         self.debuffs = []
 
-    def expToLevel(self):
-        return self.level * 5
-
     def getDisplayName(self):
         return self.name
+
+    def expToLevel(self):
+        return self.level * 5
 
     def dealDamage(self,target,amt,damageType):
         target.takeDamage(self,amt,damageType)

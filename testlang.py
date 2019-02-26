@@ -2,6 +2,8 @@ import wikipedia
 import os
 import re
 import heapq
+import nltk
+from nltk.corpus import wordnet
 #from nltk.stem.lancaster import LancasterStemmer
 #class Keyget:
 
@@ -10,6 +12,7 @@ import heapq
 
 folderName = "articles"
 stopLoc = "keywords\\stopwords.txt"
+linksName = "links"
 
 def cleanText(text):
     rtext = text
@@ -31,7 +34,7 @@ def loadWiki(fname):
                 f.write(encodedStr)
             with open("links\\"+fname + ".txt", "w", encoding="utf-8") as f:
                 for x in wka.links:
-                    addS = str(x) + " "
+                    addS = str(x) + "|"
                     f.write(addS)
             with open("summary\\"+fname + ".txt", "w", encoding="utf-8") as f:
                 f.write(wka.summary)
@@ -49,7 +52,9 @@ def loadText(text):
 
 def computeTF(textList):
     dictTF = {}
+
     for x in textList:
+
         if x not in dictTF:
             dictTF[x] = 1.0
         else:
@@ -67,6 +72,14 @@ def computeIDF(textList):
             textList[x] = 0.0
     return textList
 
+def getLinks(text,topList):
+    f = loadFile(linksName+"\\"+str(text)+".txt").lower()
+    fList = f.split("|")
+    links = []
+    for x in topList:
+        if x.lower() in fList:
+            links.append(x)
+    return links
 
 def computeText(text):
     loadWiki(text)
@@ -78,12 +91,22 @@ def computeText(text):
     t2 = computeIDF(t2)
 
     t3 = heapq.nlargest(5, t2, key=t2.get)
+
+    syn = []
+    links = getLinks(text,t3)
+    for synset in wordnet.synsets(t3[0]):
+        for lemma in synset.lemmas():
+            syn.append(lemma.name())    #add the synonyms
+
     print(t3)
+    print(links)
+    #print('Synonyms: ' + str(syn))
+    
 
 
 
 def main():
-    computeText("computer")
+    computeText("cheese")
     
 if __name__== "__main__":
     main()

@@ -8,6 +8,7 @@ class Game:
         self.target = 0
         #self.messageDest = 0
         self.messageQueue = []
+        self.makePlayer("Toby")
 
     def makePlayer(self,name):
         p = Hero()
@@ -15,6 +16,11 @@ class Game:
         p.name = name
         p.addMove("Punch")
         self.players.append(p)
+
+    def getTeams(self):
+        allTeams = []
+        allTeams.append(self.players)
+        return allTeams
 
     def checkPlayer(self,owner):
         found = 0
