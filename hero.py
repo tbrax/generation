@@ -44,7 +44,8 @@ class Hero:
 
         showAmt = round(calcAmt,1)
         giveStr = "{0} takes {1} {2} damage".format(self.name,showAmt,damageType)
-        self.ownerGame.addMessage({giveStr})
+        #self.ownerGame.addMessage({giveStr})
+        self.ownerGame.addMessageQ(giveStr,0,0)
 
     def addMove(self,name):
         found = 0
@@ -58,11 +59,16 @@ class Hero:
            
     def useMove(self,moveName,target):
         for x in self.moves:
-            if x.name == moveName:
-                
+            if x.name == moveName: 
+                msg = self.getDisplayName() + " used " + moveName + " on " + target.getDisplayName()
+                #self.ownerGame.addMessage({msg})
+                self.ownerGame.addMessageQ(msg,1,0)
                 x.use(self,target)
             else:
                 self.ownerGame.addMessage({"You do not know the move '"+moveName+"' "})
+
+    def moveList(self):
+        return self.moves
 
     def listMoves(self):
         self.ownerGame.addMessage({"Moves known by {0}:".format(self.name)})

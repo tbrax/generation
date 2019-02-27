@@ -1,5 +1,6 @@
 import tkinter as tk
-
+selectedFont = "Courier"
+sizeFont = 20 
 
 class displayClass:
     def __init__(self,g):
@@ -36,9 +37,25 @@ class displayClass:
     def fillPlayers(self,f,team):
         
         for idx,x in enumerate(team):
-            w0 = tk.Label(self.mainFrame, text=x.getDisplayName())
+            w0 = tk.Button(self.mainFrame, font=(selectedFont,sizeFont),text=x.getDisplayName(),command = lambda: self.windowPlayer(x))
             w0.grid(row=0,column=idx)
 
+    def playerUseSkill(self,player,skill):
+        player.useMove(skill,player)
+
+    def windowPlayer(self,player):
+        newWin = tk.Toplevel(self.root)
+        newWin.grid()
+
+        w0 = tk.Label(newWin, font=(selectedFont,sizeFont),text=player.getDisplayName())
+        w0.grid(row=0)
+
+        moveFrame = tk.Frame(newWin)
+        moveFrame.grid(row=1)
+        for idx,x in enumerate(player.moveList()):
+            skillName = x.name
+            w0 = tk.Button(moveFrame, font=(selectedFont,sizeFont),text=skillName,command = lambda p=player,y=skillName : self.playerUseSkill(p,y))    
+            w0.grid(row=idx)
 
 
 

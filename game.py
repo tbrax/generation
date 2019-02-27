@@ -1,6 +1,14 @@
 from hero import Hero
 from move import Move
 
+
+class scrollText:
+    def __init__(self):
+        self.text = ""
+        self.visible = True
+        self.prior = 0
+        self.children = []
+
 class Game:
     def __init__(self):
         self.players = []
@@ -9,6 +17,13 @@ class Game:
         #self.messageDest = 0
         self.messageQueue = []
         self.makePlayer("Toby")
+
+    def addMessageQ(self,msg,p,type):
+        print(msg)
+        t = scrollText()
+        t.text = msg
+        t.prior = p
+        self.messageQueue.append(t)
 
     def makePlayer(self,name):
         p = Hero()

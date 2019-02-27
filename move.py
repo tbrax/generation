@@ -59,10 +59,7 @@ class Move:
 
     def use(self,user,target):
 
-        user.ownerGame.addMessage({
-            user.getDisplayName() + " used "
-            + self.name + " on " 
-            + target.getDisplayName()})
+        
             
         for x in self.orderList:
             x.activate(user,target)
