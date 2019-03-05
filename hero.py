@@ -1,10 +1,12 @@
 from move import Move
-
+import random
 class Hero:
     def __init__(self):
         self.ownerGame = None
         self.name = "BOB"
         self.displayName = "BOB"
+        self.life = "ALIVE"
+        self.team = 0
         self.stats ={
             "HEALTH": 100,
             "MAXHEALTH": 100,
@@ -15,10 +17,12 @@ class Hero:
             "CRITRESIST": 0,
             "CRITDAMAGERESIST": 0,
             "ARMOR": 0,
+            "ACCURACY": 0,
+            "DODGE": 0,
             }
 
-        self.typeResist = []
-        self.typeDamage = []
+        self.typeResist = {}
+        self.typeDamage = {}
         self.exp = 0
         self.level = 1
         self.points = 3
@@ -28,8 +32,37 @@ class Hero:
         self.buffs = []
         self.debuffs = []
 
+    def accCheck(self,target,baseAcc):
+        i = random.randint(0,101)
+        check = baseAcc + self.stats["ACCURACY"] - target.stats["DODGE"]
+        return check > i
+
+    def parseNum(self,target,source,strValue):
+        return float(strValue)
+
     def getDisplayName(self):
         return self.name
+
+
+    def takeAction(self, source, action):
+        actionStr = ""
+        if source != 0:
+            if source == self:
+                actionStr += "SELF"
+            else:
+                actionStr += "OTHER"
+            if source.team == self.team:
+                actionStr += "ALLY"
+            else:
+                actionStr += "ENEMY"
+
+        finalStr = actionStr + action
+
+        self.checkAction(finalStr)
+
+    def checkAction(self,action):
+        x = 0
+        
 
     def expToLevel(self):
         return self.level * 5
@@ -37,15 +70,45 @@ class Hero:
     def dealDamage(self,target,amt,damageType):
         target.takeDamage(self,amt,damageType)
 
-    def takeDamage(self,source,amt,damageType):
-        calcAmt = amt
+    def textHealth(self):
+        giveStr = "{0} / {1} health".format(self.stats["HEALTH"],self.stats["MAXHEALTH"])
+        return giveStr
+        
+    def parseType(self,target,source,damageType):
+        if (damageType not in self.typeResist):
+            self.typeResist[damageType] = 1.0
+        return damageType
 
+    def canFight(self):
+        if self.life == "ALIVE":
+            return True
+        return False
+
+    def die(self):
+        self.life = "DEAD"
+        self.ownerGame.gameAction("DIED",self,self)
+
+    def checkHealth(self):
+        if self.stats["HEALTH"] <= 0:
+                self.stats["HEALTH"] = 0
+        if self.life == "ALIVE":
+            if self.stats["HEALTH"] <= 0:
+                self.die()
+                
+
+    def takeDamage(self,source,amt,damageType):
+        calcAmt = self.parseNum(self,source,amt)
+        dam = self.parseType(self,source,damageType)
+
+        calcAmt = calcAmt * float(self.typeResist[dam])
         self.stats["HEALTH"] = self.stats["HEALTH"] - calcAmt
 
         showAmt = round(calcAmt,1)
         giveStr = "{0} takes {1} {2} damage".format(self.name,showAmt,damageType)
         #self.ownerGame.addMessage({giveStr})
-        self.ownerGame.addMessageQ(giveStr,0,0)
+        self.ownerGame.addMessageQ(giveStr,0)
+
+        self.checkHealth()
 
     def addMove(self,name):
         found = 0
@@ -62,7 +125,7 @@ class Hero:
             if x.name == moveName: 
                 msg = self.getDisplayName() + " used " + moveName + " on " + target.getDisplayName()
                 #self.ownerGame.addMessage({msg})
-                self.ownerGame.addMessageQ(msg,1,0)
+                self.ownerGame.addMessageQ(msg,1)
                 x.use(self,target)
             else:
                 self.ownerGame.addMessage({"You do not know the move '"+moveName+"' "})

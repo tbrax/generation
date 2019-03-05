@@ -1,6 +1,6 @@
 from hero import Hero
 from move import Move
-
+import random
 
 class scrollText:
     def __init__(self):
@@ -10,32 +10,149 @@ class scrollText:
         self.children = []
 
 class Game:
-    def __init__(self):
+    #def __init__(self):
+    #    self.resetVars()
+
+    def resetVars(self):
         self.players = []
         self.selected = 0
         self.target = 0
         #self.messageDest = 0
         self.messageQueue = []
-        self.makePlayer("Toby")
+        self.turnOrder = []
+        self.turnCurrent = 0
+        self.round = 0
 
-    def addMessageQ(self,msg,p,type):
+    def loadAllHerosFromFiles(self):
+        print("Loading all valid heroes")
+
+    def getPlayer(self,team,player):
+        return self.players[team][player]
+
+    def resetGame(self):
+        self.resetVars()
+        #self.makePlayer("Toby",0)
+        ##self.makePlayer("Travis",0)
+        #self.makePlayer("John",1)
+        #self.makePlayer("Jake",1)
+        #self.getPlayer(0,0).stats["SPEED"] = 10
+        self.startGame()
+
+    def startGame(self):
+        self.calcTurn()
+
+    def startPlayerTurn(self,player):
+        self.gameAction("STARTTURN",0,player)
+
+    def endRoundCheck(self):
+        if self.turnCurrent >= len(self.turnOrder):
+            self.gameAction("ENDROUND",0,0)
+            
+            self.calcTurn()
+            
+            
+
+    def endTurn(self):
+        self.gameAction("ENDTURN",0,0)
+        
+        self.turnCurrent += 1
+        self.endRoundCheck()
+        while not self.turnOrder[self.turnCurrent].canFight:
+            self.turnCurrent += 1
+            self.endRoundCheck()
+        if self.turnCurrent != 0:
+            self.startPlayerTurn(self.turnOrder[self.turnCurrent])
+
+    def winGame(self,team):
+        print("Team " + str(team) + " Wins")
+
+    def endGame(self,teamStatus):
+        for idx,x in enumerate(teamStatus):
+            if x == False:
+                self.winGame(idx)
+                
+
+    def checkEnd(self):
+        wins = self.checkEndCount()
+        count = 0
+        for x in wins:
+            if x == False:
+                count +=1
+        if count == 1:
+            self.endGame(wins)
+
+    def checkEndCount(self):
+        teamsAlive = []
+        for x in self.players:
+            allDead = True
+            for y in x:
+                if y.canFight():
+                    allDead = False
+            teamsAlive.append(allDead)
+        return teamsAlive
+
+
+
+    def calcTurn(self):
+        self.turnCurrent = 0
+        self.turnOrder = []
+        for x in self.players:
+            for y in x:
+                self.turnOrder.append(y) 
+        self.turnOrder = self.turnOrder = sorted(self.turnOrder, reverse=True,key=lambda v: (v.parseNum(v,v,v.stats["SPEED"]), random.random()))
+        self.gameAction("STARTROUND",0,0)
+        self.startPlayerTurn(self.turnOrder[self.turnCurrent])
+        
+
+    def gameActionText(self,action,source,target):
+        if action == "STARTTURN":
+            s = "{0} turn".format(target.getDisplayName())
+            self.addMessageQ(s,3)
+        elif action == "STARTROUND":
+            self.round +=1
+            s = "ROUND {0}".format(self.round)
+            self.addMessageQ(s,4)
+        elif action == "DIED":
+            self.round +=1
+            s = "{0} has died".format(target.getDisplayName())
+            self.addMessageQ(s,4)
+        
+
+    def gameAction(self,action,source,target):
+        self.checkEnd()
+        self.gameActionText(action,source,target)
+        for x in self.players:
+            for y in x:
+                y.takeAction(target,action)
+
+    def getPlayerTurn(self):
+        return "getTurn not implemented"
+
+    def addMessageQ(self,msg,p):
         print(msg)
         t = scrollText()
         t.text = msg
         t.prior = p
         self.messageQueue.append(t)
 
-    def makePlayer(self,name):
+    def addPlayer(self,p,team):
+        if (len(self.players) < team+1):
+            tm = []
+            tm.append(p)
+            self.players.append(tm)
+        else:
+            self.players[team].append(p)
+
+    def makePlayer(self,name,team):
         p = Hero()
         p.ownerGame = self
         p.name = name
+        p.team = team
         p.addMove("Punch")
-        self.players.append(p)
+        self.addPlayer(p,team)
 
     def getTeams(self):
-        allTeams = []
-        allTeams.append(self.players)
-        return allTeams
+        return self.players
 
     def checkPlayer(self,owner):
         found = 0
@@ -43,7 +160,7 @@ class Game:
             if x.name == owner:
                 found = 1
         if found == 0:
-            self.makePlayer(owner)
+            self.makePlayer(owner,0)
 
     def cmdMe(self,owner):
         self.checkPlayer(owner)
@@ -121,6 +238,3 @@ class Game:
             self.explainMove(t)
 
         return self.messageQueue
-
-    def tryMove(self):
-        print("Mv")

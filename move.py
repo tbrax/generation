@@ -8,6 +8,7 @@ class Move:
         self.name = "Punch"
         self.orderList = []
         self.loaded = 0
+        
 
     def loadFromFile(self,f):
         file = open(f, "r") 
@@ -25,13 +26,14 @@ class Move:
                     if lookName.upper() == self.name.upper():
                         self.loaded = 1
                         found = 1
-                if line == "ENDMOVE":
+                if line.startswith("ENDMOVE"): 
                     found = 0
+                    state = 0
                     if self.loaded == 1:
                         self.loaded = 2
 
                 if found == 1:
-                    if line.startswith("DO="):   
+                    if line.startswith("DO="):
                         eventLine =  line[3:]
                         eventLine = eventLine.strip('\n')
                         eventLine = eventLine.strip('\t')
@@ -52,15 +54,12 @@ class Move:
     def describe(self):
         return "Move"
 
-    def createMove(self):
-        
+    def createMove(self):    
         self.searchFiles()
         
 
     def use(self,user,target):
-
-        
-            
+        user.triggerSave = []
         for x in self.orderList:
             x.activate(user,target)
 
