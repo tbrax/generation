@@ -2,9 +2,15 @@ import tkinter as tk
 selectedFont = "Courier"
 sizeFont = 20 
 
+sizeFont2 = 15
+
 class displayClass:
     def __init__(self,g,m):
         self.ownerGame = g
+        self.ownerGame.display = self
+        self.messageLength = 10
+        self.msgStart = 0
+        self.messageList = []
         self.menu = m
         self.root = tk.Tk()
         #self.root.after(0, self.task)
@@ -27,6 +33,10 @@ class displayClass:
         #print(self.ownerGame.turnOrder[self.ownerGame.turnCurrent].getDisplayName() + "'s Turn")
         self.resetGui()
 
+    def resetMenu(self):
+        self.menuFrame.destroy()
+        self.createMenu()
+
     def createMenu(self):
         self.menuFrame = tk.Frame(self.root)
         self.menuFrame.grid()
@@ -45,12 +55,18 @@ class displayClass:
         teamsTitleFrame.grid(row=0,column=0)
         teamsContentFrame = tk.Frame(teamsFrame)
         teamsContentFrame.grid(row=1,column=0)
-        for x in range(self.menu.numTeams):
-            w0 = tk.Button(teamsTitleFrame, font=(selectedFont,sizeFont),text="Team " + str(x),command = lambda: self.startButton())
-            w0.grid(row=0,column=0)
+
+        for idx,x in enumerate(self.menu.queuePlayers):
+            w0 = tk.Label(teamsContentFrame, font=(selectedFont,sizeFont),text="Team " + str(idx))
+            w0.grid(row=0,column=idx)
+
+            for idy, y in enumerate(x):
+                w0 = tk.Button(teamsContentFrame, font=(selectedFont,sizeFont),text=y.getDisplayName(),command = lambda x0=x,y0=y: self.removePlayerFromTeam(x0,y0))
+                w0.grid(row=idy+1,column=idx)
+
         ##############Player Options
         optionPlayerFrame = tk.Frame(playersFrame)
-        optionPlayerFrame.grid(row = 0,column = 1)
+        optionPlayerFrame.grid(row = 0,column = 0,padx = 10, pady = 10)
         for idx,x in enumerate(self.menu.savedHeroes):
             singleFrame = tk.Frame(optionPlayerFrame)
             singleFrame.grid(row=idx,column=0)
@@ -63,26 +79,33 @@ class displayClass:
                 addTeamButton = tk.Button(addTeamFrame, font=(selectedFont,sizeFont),text=str(y),command = lambda x0=x,y0=y: self.addPlayerToTeam(x0,y0))
                 addTeamButton.grid(row=0,column=y)
 
+    def removePlayerFromTeam(self,team,y):
+        team.remove(y)
+        self.resetMenu()
+        
     def addPlayerToTeam(self,player,team):
-        print("Add not implemented")
+        self.menu.queuePlayers[team].append(player)
+        self.resetMenu()
 
     def showSavedStats(self,player):
         print(player.getDisplayName())
     def startButton(self):
         self.menuFrame.destroy()
-        self.ownerGame.resetGame()
         self.menu.addHeroesToGame()
+        self.ownerGame.resetGame()
+        
         self.createGui()
         
 
     def createGui(self):
         self.mainFrame = tk.Frame(self.root)
         self.mainFrame.grid()
-
-        w0 = tk.Button(self.mainFrame, font=(selectedFont,sizeFont),text="End Turn",command = lambda: self.endTurn())
+        f0 = tk.Frame(self.mainFrame)
+        f0.grid(row=0,column=1)
+        w0 = tk.Button(f0, font=(selectedFont,sizeFont),text="End Turn",command = lambda: self.endTurn())
         w0.grid(row=0,column=0)
 
-        self.allPlayers = tk.Frame(self.mainFrame)
+        self.allPlayers = tk.Frame(f0)
         self.allPlayers.grid(column = 0, row = 1)
 
         self.playerFrames = []
@@ -92,6 +115,52 @@ class displayClass:
             self.playerFrames.append(pf)
 
         self.fillTeams()
+        messageFrame = tk.Frame(self.mainFrame)
+        messageFrame.grid(row=0,column=0)
+        messageText = tk.Frame(messageFrame)
+        messageText.grid(row=0,column=0)
+        ###
+        messageButtonFrame = tk.Frame(messageFrame)
+        messageButtonFrame.grid(row=0,column=1)
+
+        w0 = tk.Button(messageButtonFrame, font=(selectedFont,sizeFont),text="^",command = lambda: self.scrollMessage("C1"))
+        w0.grid(row=0,column=0)
+        w0 = tk.Button(messageButtonFrame, font=(selectedFont,sizeFont),text="v",command = lambda: self.scrollMessage("C-1"))
+        w0.grid(row=1,column=0)
+
+        self.fillMessage(messageText)
+
+    def scrollMessage(self,act):
+        if act == "C1":
+            self.msgStart +=1
+        elif act == "C-1":
+            self.msgStart -= 1
+        if self.msgStart < 0:
+            self.msgStart = 0
+        mx = max(len(self.ownerGame.visibleMessage)-self.messageLength,0)
+        if self.msgStart > mx:
+            self.msgStart = mx
+        self.updateMessageFrame()
+
+
+    def updateMessageFrame(self):
+        for idx,x in enumerate(reversed(self.messageList)):
+            if len(self.ownerGame.visibleMessage) > idx:
+                msgLook = len(self.ownerGame.visibleMessage)-1-idx-self.msgStart
+                t = self.ownerGame.visibleMessage[msgLook]
+                x.config(text=str(t))
+
+    def takeGameMessage(self,msg):
+        self.updateMessageFrame()
+
+    def fillMessage(self,f):
+        self.messageList = []
+        for x in range(self.messageLength):
+            
+            w0 = tk.Label(f, font=(selectedFont,sizeFont2),text="")
+            w0.grid(row=x,column=0,rowspan=1,sticky="s")
+            self.messageList.append(w0)
+        self.takeGameMessage("TEXT")
 
     def fillTeams(self):
         teams = self.ownerGame.getTeams()    

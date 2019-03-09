@@ -10,18 +10,22 @@ class scrollText:
         self.children = []
 
 class Game:
-    #def __init__(self):
-    #    self.resetVars()
+    def __init__(self):
+        self.resetVars()
+        self.players = []
+        self.display = 0
 
     def resetVars(self):
-        self.players = []
+        
         self.selected = 0
         self.target = 0
         #self.messageDest = 0
         self.messageQueue = []
+        self.visibleMessage = []
         self.turnOrder = []
         self.turnCurrent = 0
         self.round = 0
+        
 
     def loadAllHerosFromFiles(self):
         print("Loading all valid heroes")
@@ -41,7 +45,14 @@ class Game:
     def startGame(self):
         self.calcTurn()
 
+    def endPlayerTurns(self):
+        for x in self.players:
+            for y in x:
+                y.myTurn = False
+
     def startPlayerTurn(self,player):
+        self.endPlayerTurns()
+        player.myTurn = True
         self.gameAction("STARTTURN",0,player)
 
     def endRoundCheck(self):
@@ -116,6 +127,9 @@ class Game:
             self.round +=1
             s = "{0} has died".format(target.getDisplayName())
             self.addMessageQ(s,4)
+        elif action == "MISS":
+            s = "The move missed"
+            self.addMessageQ(s,1)
         
 
     def gameAction(self,action,source,target):
@@ -127,15 +141,27 @@ class Game:
 
     def getPlayerTurn(self):
         return "getTurn not implemented"
+    def updateVisibleMessage(self):
+        self.visibleMessage = []
+        for x in self.messageQueue:
+            self.visibleMessage.append(x.text)
 
     def addMessageQ(self,msg,p):
-        print(msg)
         t = scrollText()
         t.text = msg
         t.prior = p
         self.messageQueue.append(t)
+        self.updateVisibleMessage()
+        self.updateDisplay("TEXT")
+
+    def updateDisplay(self,msg):
+        if self.display != 0:
+            self.display.takeGameMessage(msg)
+
 
     def addPlayer(self,p,team):
+        p.ownerGame = self
+        p.team = team
         if (len(self.players) < team+1):
             tm = []
             tm.append(p)
@@ -144,11 +170,9 @@ class Game:
             self.players[team].append(p)
 
     def makePlayer(self,name,team):
-        p = Hero()
-        p.ownerGame = self
+        p = Hero(self)
         p.name = name
-        p.team = team
-        p.addMove("Punch")
+        #p.addMove("Punch")
         self.addPlayer(p,team)
 
     def getTeams(self):

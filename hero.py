@@ -1,8 +1,8 @@
 from move import Move
 import random
 class Hero:
-    def __init__(self):
-        self.ownerGame = None
+    def __init__(self,g):
+        self.ownerGame = g
         self.name = "BOB"
         self.displayName = "BOB"
         self.life = "ALIVE"
@@ -31,6 +31,7 @@ class Hero:
         self.moves = []
         self.buffs = []
         self.debuffs = []
+        self.myTurn = False
 
     def accCheck(self,target,baseAcc):
         i = random.randint(0,101)
@@ -55,14 +56,16 @@ class Hero:
                 actionStr += "ALLY"
             else:
                 actionStr += "ENEMY"
-
         finalStr = actionStr + action
-
         self.checkAction(finalStr)
 
     def checkAction(self,action):
         x = 0
         
+
+    def loadMovesList(self,data):
+        for key, value in data.items():
+            self.addMove(key)
 
     def expToLevel(self):
         return self.level * 5
@@ -119,16 +122,26 @@ class Hero:
             newMove = self.ownerGame.loadMove(name)
             if newMove != 0:
                 self.moves.append(newMove)
-           
-    def useMove(self,moveName,target):
+
+    def activateMove(self,moveName,target):
         for x in self.moves:
-            if x.name == moveName: 
-                msg = self.getDisplayName() + " used " + moveName + " on " + target.getDisplayName()
-                #self.ownerGame.addMessage({msg})
-                self.ownerGame.addMessageQ(msg,1)
+            if x.name == moveName:
                 x.use(self,target)
-            else:
-                self.ownerGame.addMessage({"You do not know the move '"+moveName+"' "})
+
+
+    def useMove(self,moveName,target):
+        if self.myTurn == True:
+            for x in self.moves:
+                if x.name == moveName: 
+                    msg = self.getDisplayName() + " used " + moveName + " on " + target.getDisplayName()
+                    self.ownerGame.addMessageQ(msg,1)
+                    self.activateMove(moveName,target)
+                else:
+                    self.ownerGame.addMessage({"You do not know the move '"+moveName+"' "})
+        else:
+            print("It is not " + self.getDisplayName() + " turn")
+        
+        
 
     def moveList(self):
         return self.moves

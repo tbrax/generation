@@ -15,7 +15,7 @@ class MoveOrder:
                 tmpTrue = user.accCheck(target,s)
                 if tmpTrue == False:
                     totalTrue = False
-                    user.takeAction(user,"MISS")
+                    user.ownerGame.gameAction("MISS",user,target)
             elif key == "PREV":
                 if user.triggerSave[-1] == False:
                     totalTrue = False

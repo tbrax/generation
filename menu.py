@@ -31,8 +31,10 @@ class Menu:
         self.savedHeroes.append(h)
 
     def addHeroesToGame(self):
-        for x in self.savedHeroes:
-            self.ownerGame.addPlayer(x,0)
+        self.ownerGame.resetVars()
+        for idx,x in enumerate(self.queuePlayers):
+            for y in x:
+                self.ownerGame.addPlayer(y,idx)
 
     def loadFromFile(self,f):
         file = open(f, "r") 
@@ -44,14 +46,24 @@ class Menu:
                     if isinstance(tp, Hero):
                         self.addHero(tp)
                     tp = 0
+                    state = 0
                 elif line.startswith("NAME="):                   
                     lookName = line.replace("NAME=","")
                     lookName = lookName.strip('\n')
                     lookName = lookName.strip('\t')
                     tp.name = lookName
+
+                elif line.startswith("MOVES="):
+                    eventLine =  line[6:]
+                    eventLine = eventLine.strip('\n')
+                    eventLine = eventLine.strip('\t')
+                    data  = json.loads(eventLine)
+                    if isinstance(tp, Hero):
+                        tp.loadMovesList(data)
+
             elif state == 0:
                 if line.startswith("STARTHERO"):
-                    tp = Hero()
+                    tp = Hero(self.ownerGame)
                     state = 1
 
     def loadHerosFromFiles(self):
