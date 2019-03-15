@@ -26,6 +26,7 @@ class Hero:
 
         self.typeResist = {}
         self.typeDamage = {}
+        self.typeRace = []
         self.exp = 0
         self.level = 1
         self.points = 3
@@ -39,7 +40,10 @@ class Hero:
         self.id = 0
 
     def writeSelf(self):
-        file = open("moveFolder\\" + filename, "w") 
+        t = "STARTHERO\n"
+        ##file = open("moveFolder\\" + filename, "w")
+        t += "ENDHERO"
+        return t
 
         
     def accCheck(self,target,baseAcc):
@@ -52,6 +56,39 @@ class Hero:
             return float(strValue)
         
         s = strValue
+        ##############
+        rf = s.find("TARRACE")
+        if rf != -1:
+            myRace = ""
+            rCount = rf+8
+            while s[rCount] != "]" and rCount < len(s):
+                myRace += s[rCount]
+                rCount += 1
+            rNum = "0"
+            if myRace.upper() in (name.upper() for name in target.typeRace):
+                rNum = "1"
+            s = s[:rf] + rNum + s[rCount+1:]
+        #############
+        rf = s.find("USERRACE")
+        if rf != -1:
+            myRace = ""
+            rCount = rf+9
+            while s[rCount] != "]" and rCount < len(s):
+                myRace += s[rCount]
+                rCount += 1
+            rNum = "0"
+            if myRace.upper() in (name.upper() for name in source.typeRace):
+                rNum = "1"
+            s = s[:rf] + rNum + s[rCount+1:]
+        ####################
+
+
+        ####
+        s = s.replace("USERHEALTHPERCENT", str(source.stats["HEALTH"]/source.stats["MAXHEALTH"]*100))
+        s = s.replace("TARHEALTHPERCENT", str(target.stats["HEALTH"]/target.stats["MAXHEALTH"]*100))
+        s = s.replace("USERHEALTHPERCENT", str(source.stats["HEALTH"]/source.stats["MAXHEALTH"]*100))
+        s = s.replace("TARHEALTHPERCENT", str(target.stats["HEALTH"]/target.stats["MAXHEALTH"]*100))
+        ######
         s = s.replace("USERHEALTH", str(source.stats["HEALTH"]))
         s = s.replace("TARHEALTH", str(target.stats["HEALTH"]))
         s = s.replace("USERMAXHEALTH", str(source.stats["MAXHEALTH"]))
@@ -74,10 +111,7 @@ class Hero:
         s = s.replace("TARACCURACY", str(target.stats["ACCURACY"]))
         s = s.replace("USERDODGE", str(source.stats["DODGE"]))
         s = s.replace("TARDODGE", str(target.stats["DODGE"]))
-        s = s.replace("USERHEALTHPERCENT", str(source.stats["HEALTH"]/source.stats["MAXHEALTH"]*100))
-        s = s.replace("TARHEALTHPERCENT", str(target.stats["HEALTH"]/target.stats["MAXHEALTH"]*100))
-        s = s.replace("USERHEALTHPERCENT", str(source.stats["HEALTH"]/source.stats["MAXHEALTH"]*100))
-        s = s.replace("TARHEALTHPERCENT", str(target.stats["HEALTH"]/target.stats["MAXHEALTH"]*100))
+
 
         f = eval(s) 
 
@@ -116,6 +150,17 @@ class Hero:
         for key, value in data.items():
             self.stats[key] = value
 
+    def loadTypeDamageList(self,data):
+        for key, value in data.items():
+            self.typeDamage[key] = value
+
+    def loadTypeRaceList(self,data):
+        self.typeRace = data.split(",")
+
+    def loadTypeResistList(self,data):
+        for key, value in data.items():
+            self.typeResist[key] = value
+
     def expToLevel(self):
         return self.level * 5
 
@@ -125,6 +170,8 @@ class Hero:
         
     def parseType(self,target,source,damageType):
         if (damageType not in self.typeResist):
+            self.typeResist[damageType] = 0
+        if (damageType not in self.typeDamage):
             self.typeResist[damageType] = 0
         return damageType
 
@@ -188,6 +235,10 @@ class Hero:
             metaData["bonusCrit"] = "0"
         amt = self.parseNum(target,self,amt)
         amt = float(amt) * float((100+max(self.stats["DAMAGE"],0))/100)
+
+        damageType = self.parseType(target,self,damageType)
+        amt = amt * float(max(((100+self.typeDamage[damageType])/100),0))
+
         dc = self.doesCrit(target,metaData["baseCrit"])
         
         target.takeDamage(self,amt,damageType,dc,metaData)

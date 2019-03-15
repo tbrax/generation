@@ -33,6 +33,25 @@ class MoveOrder:
                 for x in user.triggerSave:
                     if x == False:
                         totalTrue = False
+            elif "#<#" in key:
+                k = key.replace("#<#","")
+                k0 = user.parseNum(target,user,k)
+                k1 = user.parseNum(target,user,value)
+                if not (k0<k1):
+                    totalTrue = False
+            elif "#>#" in key:
+                k = key.replace("#>#","")
+                k0 = user.parseNum(target,user,k)
+                k1 = user.parseNum(target,user,value)
+                if not (k0>k1):
+                    totalTrue = False
+            elif "#e#" in key:
+                k = key.replace("#e#","")
+                k0 = user.parseNum(target,user,k)
+                k1 = user.parseNum(target,user,value)
+                if not (k0==k1):
+                    totalTrue = False
+            
         user.triggerSave.append(totalTrue)
         return totalTrue
 
@@ -101,6 +120,10 @@ class MoveOrder:
             self.triggers["HIT"] = t[4:]
         elif t.startswith("RANDOM="):
             self.triggers["RANDOM"] = t[7:]
+        elif "#<#" or "#>#" or "#e#" in t:
+            t0 = t.split("=")
+            self.triggers[t0[0]] = t0[1]
+
 
 
 
@@ -112,7 +135,7 @@ class MoveOrder:
                     if x.startswith("AMT="):
                         self.heldValue = x[4:]
                     elif x.startswith("TYPE="):
-                        self.type = x[5:]
+                        self.type = x[5:].upper()
                     elif x.startswith("TARGET="):
                         self.tar = x[7:]
                     elif x.startswith("CRIT="):

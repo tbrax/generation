@@ -290,14 +290,15 @@ class displayClass:
         s0Frame.grid(row=3)
         cc = 0
         rc = 0
-        for idx, (key, value) in enumerate(player.typeResist.items()):     
-            tx = "{0}: {1} ".format(key,value)
-            w0 = tk.Label(s0Frame, font=(selectedFont,sizeFont2),text=tx)    
-            w0.grid(column=cc,row=rc)
-            cc += 1
-            if (cc > statsRow):
-                cc = 0
-                rc += 1
+        for idx, (key, value) in enumerate(player.typeResist.items()):   
+            if (value != 0):
+                tx = "{0}: {1} ".format(key,value)
+                w0 = tk.Label(s0Frame, font=(selectedFont,sizeFont2),text=tx)    
+                w0.grid(column=cc,row=rc)
+                cc += 1
+                if (cc > statsRow):
+                    cc = 0
+                    rc += 1
         ################################
         w0 = tk.Label(newWin, font=(selectedFont,sizeFont2),text="Damage") 
         w0.grid(row=4)
@@ -305,8 +306,24 @@ class displayClass:
         s0Frame.grid(row=5)
         cc = 0
         rc = 0
-        for idx, (key, value) in enumerate(player.typeDamage.items()):     
-            tx = "{0}: {1} ".format(key,value)
+        for idx, (key, value) in enumerate(player.typeDamage.items()):   
+            if (value != 0):  
+                tx = "{0}: {1} ".format(key,value)
+                w0 = tk.Label(s0Frame, font=(selectedFont,sizeFont2),text=tx)    
+                w0.grid(column=cc,row=rc)
+                cc += 1
+                if (cc > statsRow):
+                    cc = 0
+                    rc += 1
+        ################################
+        w0 = tk.Label(newWin, font=(selectedFont,sizeFont2),text="Types") 
+        w0.grid(row=6)
+        s0Frame = tk.Frame(newWin)
+        s0Frame.grid(row=7)
+        cc = 0
+        rc = 0
+        for idx, value in enumerate(player.typeRace):   
+            tx = "{0}".format(value)
             w0 = tk.Label(s0Frame, font=(selectedFont,sizeFont2),text=tx)    
             w0.grid(column=cc,row=rc)
             cc += 1

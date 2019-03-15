@@ -1,43 +1,62 @@
 STARTHERO
 NAME=Lion
-MOVES={"Pounce": 1, "Blind Swipe": 1, "Open Wound": 1,"Side Swipe": 1,"Critical Lunge": 1, "Speed Strike": 1}
-STATS={"DAMAGE": 5, "SPEED": 7}
+MOVES={"Pounce": 1, "Kick Up Dust": 1, "Open Wound": 1,"Side Swipe": 1,"Critical Lunge": 1, "Speed Strike": 1, "Half Hit": 1, "Bite Human": 1, "Mighty Roar": 1}
+STATS={"DAMAGE": 0, "SPEED": 7}
+TYPERESIST={"FIRE": -20, "COLD": -20}
+TYPEDAMAGE={"SLASH": 0, "PIERCE": 30}
+TYPERACE=Beast,Carnivore 
 ENDHERO
 
 STARTMOVE
 NAME=Critical Lunge
-DESC=High crit chance
-DO={"DAMAGE": ["TYPE=Slash", "AMT=20","TARGET=SELECTED","CRIT=100","CRITBONUS=50"], "TRIGGER": ["HIT=100"]}
+DESC=High crit chance and bonus damage
+DO={"DAMAGE": ["TYPE=Slash", "AMT=20","TARGET=SELECTED","CRIT=70","CRITBONUS=50"], "TRIGGER": ["HIT=90"]}
+ENDMOVE
+
+STARTMOVE
+NAME=Mighty Roar
+DESC=Gives a damage buff to friendly beasts
+DO={"BUFF": ["TYPE=DAMAGE", "AMT=30","TARGET=ALLALLY","NAME=Damage","DUR=3","COUNTTRI=SELFALLYENDTURN","DO=STAT","ACT=STARTCOUNT"], "TRIGGER": ["TARRACE[Beast]#e#=1"]}
+ENDMOVE
+
+STARTMOVE
+NAME=Bite Human
+DESC=Deals double damage to humans
+DO={"DAMAGE": ["TYPE=Slash", "AMT=15 + 15*TARRACE[Human]","TARGET=SELECTED"], "TRIGGER": ["HIT=100"]}
+ENDMOVE
+
+STARTMOVE
+NAME=Half Hit
+DESC=Only deals damage if the target has less than 50% health
+DO={"DAMAGE": ["TYPE=Pierce", "AMT=30","TARGET=SELECTED"], "TRIGGER": ["TARHEALTHPERCENT#<#=50"]}
 ENDMOVE
 
 STARTMOVE
 NAME=Speed Strike
-DESC=Deals damage based on speed
-DO={"DAMAGE": ["TYPE=Slash", "AMT=2*USERSPEED","TARGET=SELECTED","CRIT=0","CRITBONUS=0"], "TRIGGER": ["HIT=100"]}
+DESC=Deals damage based on the users speed
+DO={"DAMAGE": ["TYPE=SLASH", "AMT=2*USERSPEED","TARGET=SELECTED","CRIT=0","CRITBONUS=0"], "TRIGGER": ["HIT=100"]}
 ENDMOVE
 
 STARTMOVE
 NAME=Side Swipe
-DESC=Hits all enemies
-DO={"TARGET": ["TARGET=ALLENEMY"], "TRIGGER": ["HIT=50"]}
-DO={"DAMAGE": ["TYPE=Slash", "AMT=22","TARGET=TARGET","CRIT=0","CRITBONUS=0"], "TRIGGER": ["HIT=100"]}
-DO={"DEBUFF": ["TYPE=ACCURACY", "AMT=-10","TARGET=TARGET","NAME=Accuracy","DUR=3","COUNTTRI=SELFALLYENDTURN","DO=STAT","ACT=STARTCOUNT"], "TRIGGER": ["HIT=100"]}
+DESC=Low chance to hit each enemy and lower their damage
+DO={"TARGET": ["TARGET=ALLENEMY"], "TRIGGER": ["HIT=60"]}
+DO={"DAMAGE": ["TYPE=Slash", "AMT=22","TARGET=TARGET","CRIT=0","CRITBONUS=0"]}
+DO={"BUFF": ["TYPE=DAMAGE", "AMT=2","TARGET=TARGET","NAME=Damage down","DUR=2","COUNTTRI=SELFALLYENDTURN","DO=STAT","ACT=STARTCOUNT"]}
 ENDMOVE
-
-
 
 STARTMOVE
 NAME=Pounce
 DESC=Jump on the enemy, gaining speed and accuracy
-DO={"DAMAGE": ["TYPE=Crush", "AMT=10","TARGET=SELECTED"], "TRIGGER": ["HIT=100"]}
+DO={"DAMAGE": ["TYPE=SLASH", "AMT=10","TARGET=SELECTED"], "TRIGGER": ["HIT=100"]}
 DO={"BUFF": ["TYPE=ACCURACY", "AMT=10","TARGET=SELF","NAME=Accuracy","DUR=2","COUNTTRI=SELFALLYENDTURN","DO=STAT","ACT=STARTCOUNT"], "TRIGGER": ["PREV"]}
 DO={"BUFF": ["TYPE=SPEED", "AMT=2","TARGET=SELF","NAME=Accuracy","DUR=2","COUNTTRI=SELFALLYENDTURN","DO=STAT","ACT=STARTCOUNT"], "TRIGGER": ["PREV"]}
 ENDMOVE
 
 STARTMOVE
-NAME=Blind Swipe
+NAME=Kick Up Dust
 DESC=Reduces Accuracy 
-DO={"DEBUFF": ["TYPE=ACCURACY", "AMT=-10","TARGET=SELECTED","NAME=Blind","DUR=4","COUNTTRI=SELFALLYENDTURN","DO=STAT","ACT=STARTCOUNT"], "TRIGGER": ["ALWAYS"]}
+DO={"DEBUFF": ["TYPE=ACCURACY", "AMT=-30","TARGET=SELECTED","NAME=Blind","DUR=4","COUNTTRI=SELFALLYENDTURN","DO=STAT","ACT=STARTCOUNT"], "TRIGGER": ["ALWAYS"]}
 ENDMOVE
 
 STARTMOVE

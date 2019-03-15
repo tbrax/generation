@@ -84,6 +84,26 @@ class Menu:
                     data  = json.loads(eventLine)
                     if isinstance(tp, Hero):
                         tp.loadStatsList(data)
+                elif line.startswith("TYPEDAMAGE="):
+                    eventLine =  line.replace("TYPEDAMAGE=","")
+                    eventLine = eventLine.strip('\n')
+                    eventLine = eventLine.strip('\t')
+                    data  = json.loads(eventLine)
+                    if isinstance(tp, Hero):
+                        tp.loadTypeDamageList(data)
+                elif line.startswith("TYPERESIST="):
+                    eventLine =  line.replace("TYPERESIST=","")
+                    eventLine = eventLine.strip('\n')
+                    eventLine = eventLine.strip('\t')
+                    data  = json.loads(eventLine)
+                    if isinstance(tp, Hero):
+                        tp.loadTypeResistList(data)
+                elif line.startswith("TYPERACE="):
+                    eventLine =  line.replace("TYPERACE=","")
+                    eventLine = eventLine.strip('\n')
+                    eventLine = eventLine.strip('\t')
+                    if isinstance(tp, Hero):
+                        tp.loadTypeRaceList(eventLine)
 
             elif state == 0:
                 if line.startswith("STARTHERO"):
