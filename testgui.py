@@ -3,6 +3,8 @@ from game import *
 from menu import *
 
 def main():
+    
+
 
     g = Game()
     m = Menu(g)

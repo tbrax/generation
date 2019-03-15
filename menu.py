@@ -3,12 +3,13 @@ from move import Move
 import random
 import json
 import os
+import copy
 
 
 class Menu:
     def __init__(self,g):
         self.ownerGame = g
-        self.savedHeroes = []
+        self.savedHeros = []
         self.queuePlayers = []
         self.numTeams = 2
         self.menuSetup()
@@ -28,13 +29,29 @@ class Menu:
                 print(e)
 
     def addHero(self,h):
-        self.savedHeroes.append(h)
+        self.savedHeros.append(h)
 
-    def addHeroesToGame(self):
+    def startGameCheck(self):
+        validTeams = 0
+        for idx,x in enumerate(self.queuePlayers):
+            c = False
+            for y in x:
+                c = True
+            if c:
+                validTeams += 1
+
+        if validTeams < 2:
+            return False
+        return True
+
+    def addherosToGame(self):
         self.ownerGame.resetVars()
         for idx,x in enumerate(self.queuePlayers):
             for y in x:
-                self.ownerGame.addPlayer(y,idx)
+                y.ownerGame = 0
+                z = copy.deepcopy(y)
+                z.ownerGame = self.ownerGame
+                self.ownerGame.addPlayer(z,idx)
 
     def loadFromFile(self,f):
         file = open(f, "r") 
@@ -60,6 +77,13 @@ class Menu:
                     data  = json.loads(eventLine)
                     if isinstance(tp, Hero):
                         tp.loadMovesList(data)
+                elif line.startswith("STATS="):
+                    eventLine =  line.replace("STATS=","")
+                    eventLine = eventLine.strip('\n')
+                    eventLine = eventLine.strip('\t')
+                    data  = json.loads(eventLine)
+                    if isinstance(tp, Hero):
+                        tp.loadStatsList(data)
 
             elif state == 0:
                 if line.startswith("STARTHERO"):
@@ -67,7 +91,7 @@ class Menu:
                     state = 1
 
     def loadHerosFromFiles(self):
-        self.savedHeroes = []
+        self.savedHeros = []
         self.searchFiles()
 
         

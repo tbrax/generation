@@ -26,11 +26,7 @@ class Move:
                     if lookName.upper() == self.name.upper():
                         self.loaded = 1
                         found = 1
-                elif line.startswith("DESC="):                   
-                    lookName = line.replace("DESC=","")
-                    lookName = lookName.strip('\n')
-                    lookName = lookName.strip('\t')
-                    self.desc = lookName
+                
                 if line.startswith("ENDMOVE"): 
                     found = 0
                     state = 0
@@ -45,6 +41,11 @@ class Move:
                         o = MoveOrder()
                         o.load(data)
                         self.orderList.append(o)
+                    elif line.startswith("DESC="):                   
+                        lookName = line.replace("DESC=","")
+                        lookName = lookName.strip('\n')
+                        lookName = lookName.strip('\t')
+                        self.desc = lookName
             elif state == 0:
                 if line.startswith("STARTMOVE"):
                     state = 1
@@ -67,6 +68,7 @@ class Move:
 
     def use(self,user,target):
         user.triggerSave = []
+        user.lastTarget = []
         for x in self.orderList:
             x.activate(user,target)
 

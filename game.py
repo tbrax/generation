@@ -1,5 +1,6 @@
 from hero import Hero
 from move import Move
+from buff import Buff
 import random
 
 class scrollText:
@@ -28,7 +29,7 @@ class Game:
         
 
     def loadAllHerosFromFiles(self):
-        print("Loading all valid heroes")
+        print("Loading all valid heros")
 
     def getPlayer(self,team,player):
         return self.players[team][player]
@@ -64,7 +65,7 @@ class Game:
             
 
     def endTurn(self):
-        self.gameAction("ENDTURN",0,0)
+        self.gameAction("ENDTURN",self.turnOrder[self.turnCurrent],self.turnOrder[self.turnCurrent])
         
         self.turnCurrent += 1
         self.endRoundCheck()
@@ -128,7 +129,7 @@ class Game:
             s = "{0} has died".format(target.getDisplayName())
             self.addMessageQ(s,4)
         elif action == "MISS":
-            s = "The move missed"
+            s = "Miss on {0}".format(target.getDisplayName())
             self.addMessageQ(s,1)
         
 
@@ -162,12 +163,14 @@ class Game:
     def addPlayer(self,p,team):
         p.ownerGame = self
         p.team = team
+
         if (len(self.players) < team+1):
             tm = []
             tm.append(p)
             self.players.append(tm)
         else:
             self.players[team].append(p)
+        p.id = len(self.players[team])
 
     def makePlayer(self,name,team):
         p = Hero(self)
@@ -196,9 +199,9 @@ class Game:
 
         self.addMessage(send)
 
-    def addMessage(self,msg):
+    #def addMessage(self,msg):
        
-        self.messageQueue += msg
+        #self.messageQueue += msg
 
     def help(self):
         send = []
@@ -212,7 +215,7 @@ class Game:
         send += {"!status - Shows buffs and debuffs on your character"}
         send += {"!die - You die"}
 
-        self.addMessage(send)
+        #self.addMessage(send)
 
     def useMove(self,move,owner):
         self.checkPlayer(owner)

@@ -15,8 +15,12 @@ class displayClass:
         self.root = tk.Tk()
         #self.root.after(0, self.task)
         self.playerWindow = 0
+        self.maxHeros = 4
+        self.heroOffset = 0
+        ####
         self.createMenu()
         self.root.mainloop()
+        
 
 
     def task(self):
@@ -65,18 +69,34 @@ class displayClass:
                 w0.grid(row=idy+1,column=idx)
 
         ##############Player Options
-        optionPlayerFrame = tk.Frame(playersFrame)
-        optionPlayerFrame.grid(row = 0,column = 0,padx = 10, pady = 10)
-        for idx,x in enumerate(self.menu.savedHeroes):
+        choosePlayerFrame = tk.Frame(playersFrame)
+        choosePlayerFrame.grid(row = 0,column = 0,padx = 10, pady = 10)
+
+        chooseScrollPlayerFrame = tk.Frame(choosePlayerFrame)
+        chooseScrollPlayerFrame.grid(row = 0,column = 0,padx = 10, pady = 10)
+
+        w0 = tk.Button(chooseScrollPlayerFrame, font=(selectedFont,sizeFont),text="^",command = lambda: self.scrollPlayer("C-1"))
+        w0.grid(row=0,column=0)
+        w0 = tk.Button(chooseScrollPlayerFrame, font=(selectedFont,sizeFont),text="v",command = lambda: self.scrollPlayer("C1"))
+        w0.grid(row=1,column=0)
+
+        optionPlayerFrame = tk.Frame(choosePlayerFrame)
+        optionPlayerFrame.grid(row = 0,column = 1,padx = 10, pady = 10)
+
+        playerLookStart = self.heroOffset
+        playerLookEnd = min(len(self.menu.savedHeros),self.heroOffset + self.maxHeros)
+
+        for idx in range(playerLookStart,playerLookEnd):
+            cx = idx
             singleFrame = tk.Frame(optionPlayerFrame)
             singleFrame.grid(row=idx,column=0)
-            nameButton = tk.Button(singleFrame, font=(selectedFont,sizeFont),text=x.getDisplayName(),command = lambda x0=x: self.showSavedStats(x0))
+            nameButton = tk.Button(singleFrame, font=(selectedFont,sizeFont),text=self.menu.savedHeros[cx].getDisplayName(),command = lambda x0=self.menu.savedHeros[cx]: self.showSavedStats(x0))
             nameButton.grid(row=0,column=0)
 
             addTeamFrame = tk.Frame(singleFrame)
             addTeamFrame.grid(row=0,column=1)
             for y in range(self.menu.numTeams):
-                addTeamButton = tk.Button(addTeamFrame, font=(selectedFont,sizeFont),text=str(y),command = lambda x0=x,y0=y: self.addPlayerToTeam(x0,y0))
+                addTeamButton = tk.Button(addTeamFrame, font=(selectedFont,sizeFont),text=str(y),command = lambda x0=self.menu.savedHeros[cx],y0=y: self.addPlayerToTeam(x0,y0))
                 addTeamButton.grid(row=0,column=y)
 
     def removePlayerFromTeam(self,team,y):
@@ -89,12 +109,14 @@ class displayClass:
 
     def showSavedStats(self,player):
         print(player.getDisplayName())
+
     def startButton(self):
-        self.menuFrame.destroy()
-        self.menu.addHeroesToGame()
-        self.ownerGame.resetGame()
-        
-        self.createGui()
+        if self.menu.startGameCheck():
+            self.menuFrame.destroy()
+            self.menu.addherosToGame()
+            self.ownerGame.resetGame()
+            
+            self.createGui()
         
 
     def createGui(self):
@@ -129,6 +151,21 @@ class displayClass:
         w0.grid(row=1,column=0)
 
         self.fillMessage(messageText)
+
+
+    def scrollPlayer(self,act):
+        if act == "C1":
+            self.heroOffset += self.maxHeros
+        elif act == "C-1":
+            self.heroOffset -= self.maxHeros
+        if self.heroOffset < 0:
+            self.heroOffset = 0
+            
+        mx = max(len(self.menu.savedHeros)-self.maxHeros,0)
+
+        if self.heroOffset > mx:
+            self.heroOffset = mx
+        self.resetMenu()
 
     def scrollMessage(self,act):
         if act == "C1":
@@ -171,6 +208,8 @@ class displayClass:
         for idx,x in enumerate(team):
             w0 = tk.Button(self.allPlayers, font=(selectedFont,sizeFont),text=x.getDisplayName(),command = lambda x0=x: self.windowPlayer(x0))
             w0.grid(row=teamNum,column=idx)
+            if x.myTurn:
+                w0.config(bg="blue")
 
     def fillTeamsTarget(self,player,skill,window):
         teams = self.ownerGame.getTeams()    
@@ -181,6 +220,13 @@ class displayClass:
         for idx,x in enumerate(team):
             w0 = tk.Button(window, font=(selectedFont,sizeFont),text=x.getDisplayName(),command = lambda p0=player,x0=x,s0=skill: self.playerUseSkill(p0,x0,s0))
             w0.grid(row=teamNum,column=idx)
+            if x == player:
+                w0.config(bg="blue")
+            elif x.team == player.team:
+                w0.config(bg="green")
+            else:
+                w0.config(bg="red")
+            
 
     def playerUseSkill(self,player,target,skill):
         #print(player.getDisplayName())
@@ -210,9 +256,63 @@ class displayClass:
         w0.grid(row=0)
         w0 = tk.Label(newWin, font=(selectedFont,sizeFont),text=skillName)
         w0.grid(row=1)
+        w0 = tk.Label(newWin, font=(selectedFont,sizeFont),text=player.getMoveByName(skillName).desc)
+        w0.grid(row=2)
+
+        
         targetFrame = tk.Frame(newWin)
-        targetFrame.grid(row=2)
+        targetFrame.grid(row=3)
         self.fillTeamsTarget(player,skillName,targetFrame)
+
+    def windowStats(self,player):
+        statsRow = 5
+        newWin = tk.Toplevel(self.root)
+        newWin.grid()
+        ################################
+        w0 = tk.Label(newWin, font=(selectedFont,sizeFont2),text="STATS") 
+        w0.grid(row=0)
+        s0Frame = tk.Frame(newWin)
+        s0Frame.grid(row=1)
+        cc = 0
+        rc = 0
+        for idx, (key, value) in enumerate(player.stats.items()):     
+            tx = "{0}: {1} ".format(key,value)
+            w0 = tk.Label(s0Frame, font=(selectedFont,sizeFont2),text=tx)    
+            w0.grid(column=cc,row=rc)
+            cc += 1
+            if (cc > statsRow):
+                cc = 0
+                rc += 1
+        ################################
+        w0 = tk.Label(newWin, font=(selectedFont,sizeFont2),text="Resist") 
+        w0.grid(row=2)
+        s0Frame = tk.Frame(newWin)
+        s0Frame.grid(row=3)
+        cc = 0
+        rc = 0
+        for idx, (key, value) in enumerate(player.typeResist.items()):     
+            tx = "{0}: {1} ".format(key,value)
+            w0 = tk.Label(s0Frame, font=(selectedFont,sizeFont2),text=tx)    
+            w0.grid(column=cc,row=rc)
+            cc += 1
+            if (cc > statsRow):
+                cc = 0
+                rc += 1
+        ################################
+        w0 = tk.Label(newWin, font=(selectedFont,sizeFont2),text="Damage") 
+        w0.grid(row=4)
+        s0Frame = tk.Frame(newWin)
+        s0Frame.grid(row=5)
+        cc = 0
+        rc = 0
+        for idx, (key, value) in enumerate(player.typeDamage.items()):     
+            tx = "{0}: {1} ".format(key,value)
+            w0 = tk.Label(s0Frame, font=(selectedFont,sizeFont2),text=tx)    
+            w0.grid(column=cc,row=rc)
+            cc += 1
+            if (cc > statsRow):
+                cc = 0
+                rc += 1
 
     def windowPlayer(self,player):
         newWin = tk.Toplevel(self.root)
@@ -224,9 +324,23 @@ class displayClass:
         w0 = tk.Label(newWin, font=(selectedFont,sizeFont),text=player.textHealth())
         w0.grid(row=1)
 
+        w0 = tk.Button(newWin, font=(selectedFont,sizeFont),text="Stats",command = lambda p=player : self.windowStats(p))    
+        w0.grid(column=0,row=2)
+
         moveFrame = tk.Frame(newWin)
-        moveFrame.grid(row=2)
+        moveFrame.grid(row=3)
+
+        movesPerRow = 4
+        cc = 0
+        rc = 0
+
         for idx,x in enumerate(player.moveList()):
+            
+
             skillName = x.name
             w0 = tk.Button(moveFrame, font=(selectedFont,sizeFont),text=skillName,command = lambda p=player,y=skillName : self.windowTarget(p,y))    
-            w0.grid(row=idx)
+            w0.grid(column=cc,row=rc)
+            cc += 1
+            if cc >= movesPerRow:
+                cc = 0
+                rc += 1
