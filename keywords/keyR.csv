@@ -1,0 +1,12 @@
+RACEHUMAN,RACEBEAST,RACEUNDEAD,RACESUPERNATURAL,RACESEACREATURE,RACELEADER,RACEFOOD
+man,mammal,zombie,RACEUNDEAD+,fish,leader,sweet
+woman,beast,ghoul,imp,mermaid,general,salty
+dude,bird,vampire,witch,whale,major,cake
+fellow,herbivore,ghost,werewolf,shark,judge,dish
+human,carnivore,,goblin,,,taco
+,insect,,demon,,,steak
+,reptile,,kelpie,,,cheese
+,RACESEACREATURE+,,yeti,,,milk
+,,,,,,burger
+,,,,,,fries
+,,,,,,salt
