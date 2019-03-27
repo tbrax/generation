@@ -32,7 +32,7 @@ class Move:
                     state = 0
                     if self.loaded == 1:
                         self.loaded = 2
-                if found == 1:
+                if self.loaded == 1:
                     if line.startswith("DO="):
                         eventLine =  line[3:]
                         eventLine = eventLine.strip('\n')

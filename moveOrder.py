@@ -64,6 +64,12 @@ class MoveOrder:
         elif self.tar == "ALLALLY":
             for x in user.getAllAlly():
                 totalTargets.append(x)
+        elif self.tar == "RANDOMALLY":
+            totalTargets.append(random.choice(user.getAllAlly()))
+        elif self.tar == "RANDOMOTHERALLY":
+            totalTargets.append(random.choice(user.getOtherAlly()))
+        elif self.tar == "RANDOMENEMY":
+            totalTargets.append(random.choice(user.getAllEnemy()))       
         elif self.tar == "OTHERALLY":
             for x in user.getOtherAlly():
                 totalTargets.append(x)
@@ -136,6 +142,7 @@ class MoveOrder:
                         self.heldValue = x[4:]
                     elif x.startswith("TYPE="):
                         self.type = x[5:].upper()
+                        
                     elif x.startswith("TARGET="):
                         self.tar = x[7:]
                     elif x.startswith("CRIT="):

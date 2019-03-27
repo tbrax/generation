@@ -231,10 +231,61 @@ class Gen:
         d+=str(damage)
         return d
 
+    def createTarget(self,isEnemy):
+        d = []
+        d += 5*["SELECTED"]
+
+        if (isEnemy):
+            d += 1*["ALLENEMY"]
+            d += 1*["RANDOMENEMY"]
+        else:
+            d += 2*["ALLALLY"]
+            d += 4*["SELF"]
+            d += 1*["RANDOMALLY"]
+            d += 1*["RANDOMOTHERALLY"]
+
+        return random.choice(d)
+    
+    def strBuff(self,isDebuff):
+        bType = "BUFF"
+        amt = 30
+        namePrefix = "INCREASED_"
+        if (isDebuff):
+            bType = "DEBUFF"
+            amt *= -1
+            namePrefix = "DECREASED_"
+
+        rt = {bType:[]}
+        rt[bType].append("DO=STAT")        
+        ct = "DAMAGE"
+        
+        tStDict = self.statsPlus.copy()
+        for (k,v) in self.totalMech.items():
+            if ("MECH"+bType in k):
+                sk = k.replace("MECH"+bType,"")
+                tStDict[sk] = v
+        st = self.randomWeightDict(tStDict)
+        if (st != False):
+            ct = st
+
+        self.addToName(self.columns["STATPLUS"+ct])
+        self.addToName(self.columns["MECH"+bType+ct])
+
+        rt[bType].append("TYPE="+ct)
+        
+
+        rt[bType].append("AMT="+str(amt))
+        rt[bType].append("TARGET="+self.createTarget(isDebuff))
+        rt[bType].append("NAME="+namePrefix+ct)
+        rt[bType].append("DUR=3")
+        rt[bType].append("COUNTTRI=SELFALLYENDTURN")
+        rt[bType].append("ACT=STARTCOUNT")
+
+        return rt
+
     def strDamage(self):
         rt = {"DAMAGE":[]}
         myType = "CRUSH"
-        myTarget = "TARGET"
 
         if len(self.typePlus) > 0:
             myType = self.randomWeightDict(self.typePlus)
@@ -242,12 +293,12 @@ class Gen:
         self.addToName(self.columns["TYPEPLUS"+myType])
         rt["DAMAGE"].append("TYPE="+myType)
 
-        
-
         rt["DAMAGE"].append("AMT="+self.createDamage())
-        rt["DAMAGE"].append("TARGET=SELECTED")
-        rt["DAMAGE"].append("CRIT=0")
-        rt["DAMAGE"].append("CRITBONUS=0")
+        rt["DAMAGE"].append("TARGET="+self.createTarget(True))
+        calcR = random.randint(0,15)
+        calcB = random.randint(0,30)
+        rt["DAMAGE"].append("CRIT="+str(calcR))
+        rt["DAMAGE"].append("CRITBONUS="+str(calcB))
         return rt
 
     def strDo(self):
@@ -259,10 +310,14 @@ class Gen:
                 self.moveMech[c] = self.totalMech[c]
 
         rt = "DO="
-        myDo = "DAMAGE"
+        myDo = "BUFF"
         dc = {}
         if myDo == "DAMAGE":
             dc = self.strDamage()
+        elif myDo == "BUFF":
+            dc = self.strBuff(False)
+        elif myDo == "DEBUFF":
+            dc = self.strBuff(True)
 
         dc["TRIGGER"] = ["HIT=90"]
 
@@ -274,20 +329,32 @@ class Gen:
         self.moveName = []
         rt = "STARTMOVE\n"
 
-        nl = random.randint(1,4)
-        rt += self.strDo() + "\n"
-
+       
+        dos = []
+        nl = random.randint(1,1)
+        for x in range(0,nl):
+            dos.append(self.strDo())
 
         rt += "NAME="
         tempName = ""
+
         nl = random.randint(1,4)
 
+        if len(self.moveName) == 0:
+            self.moveName.append("Default_Name")
         for x in range(0,nl):
-            if x != 0:
-                rt += " "
-            tempName += random.choice(self.moveName)
+            newRc = random.choice(self.moveName)
+            if (newRc not in tempName):
+                if x > 0:
+                    tempName += "_"
+                tempName += newRc
+                
         self.madeMoves[tempName] = 1
-        rt += tempName
+        rt += tempName + "\n"
+
+        for x in dos:
+            rt += x + "\n"
+
         rt += "\n"
         rt += "ENDMOVE\n"
         return rt

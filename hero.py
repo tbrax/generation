@@ -172,7 +172,7 @@ class Hero:
         if (damageType not in self.typeResist):
             self.typeResist[damageType] = 0
         if (damageType not in self.typeDamage):
-            self.typeResist[damageType] = 0
+            self.typeDamage[damageType] = 0
         return damageType
 
     def canFight(self):
@@ -235,13 +235,12 @@ class Hero:
             metaData["bonusCrit"] = "0"
         amt = self.parseNum(target,self,amt)
         amt = float(amt) * float((100+max(self.stats["DAMAGE"],0))/100)
-
-        damageType = self.parseType(target,self,damageType)
-        amt = amt * float(max(((100+self.typeDamage[damageType])/100),0))
+        damageTypeC = self.parseType(target,self,damageType)
+        amt = amt * float(max(((100+self.typeDamage[damageTypeC])/100),0))
 
         dc = self.doesCrit(target,metaData["baseCrit"])
         
-        target.takeDamage(self,amt,damageType,dc,metaData)
+        target.takeDamage(self,amt,damageTypeC,dc,metaData)
         self.ownerGame.gameAction("DEALDAMAGE",self,target)
 
     def calcCrit(self,source,amt,metaData):
