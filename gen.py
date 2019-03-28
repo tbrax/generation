@@ -223,32 +223,38 @@ class Gen:
         elif "MECHMINUSDAMAGE" in self.moveMech:
             damage -= random.randint(3,6)
 
+        d = ""
+        d+=str(damage)
+        bonusAttributesList = {}
         for k, v in self.moveMech.items():
             if k.startswith("MECHDAMAGESTAT"):
                 stt = k.replace("MECHDAMAGESTAT", "")
 
-        d = ""
-        d+=str(damage)
+        bonusAttributes = self.randomWeightDict(bonusAttributesList)
         return d
 
-    def createTarget(self,isEnemy):
-        d = []
-        d += 5*["SELECTED"]
+    def createTarget(self,mainTarget,isEnemy):
+        d = {}
+
 
         if (isEnemy):
-            d += 1*["ALLENEMY"]
-            d += 1*["RANDOMENEMY"]
+            d["ALLENEMY"] = 0.5
+            d["RANDOMENEMY"] = 0.4
+            if (mainTarget == "ENEMY"):
+                d["SELECTED"]=1
         else:
-            d += 2*["ALLALLY"]
-            d += 4*["SELF"]
-            d += 1*["RANDOMALLY"]
-            d += 1*["RANDOMOTHERALLY"]
+            d["ALLALLY"] = 0.3
+            d["SELF"] = 0.9
+            d["RANDOMALLY"] = 0.2
+            d["RANDOMOTHERALLY"] = 0.1
+            if (mainTarget == "ALLY"):
+                d["SELECTED"]=1
 
-        return random.choice(d)
+        return self.randomWeightDict(d)
     
-    def strBuff(self,isDebuff):
+    def strBuff(self,mainTarget,isDebuff):
         bType = "BUFF"
-        amt = 30
+        amt = random.randint(15,50)
         namePrefix = "INCREASED_"
         if (isDebuff):
             bType = "DEBUFF"
@@ -256,8 +262,9 @@ class Gen:
             namePrefix = "DECREASED_"
 
         rt = {bType:[]}
-        rt[bType].append("DO=STAT")        
-        ct = "DAMAGE"
+        rt[bType].append("DO=STAT")
+        baseCt = {"DAMAGE":1,"SPEED":1,"ARMOR":1} 
+        ct = self.randomWeightDict(baseCt)
         
         tStDict = self.statsPlus.copy()
         for (k,v) in self.totalMech.items():
@@ -275,7 +282,7 @@ class Gen:
         
 
         rt[bType].append("AMT="+str(amt))
-        rt[bType].append("TARGET="+self.createTarget(isDebuff))
+        rt[bType].append("TARGET="+self.createTarget(mainTarget,isDebuff))
         rt[bType].append("NAME="+namePrefix+ct)
         rt[bType].append("DUR=3")
         rt[bType].append("COUNTTRI=SELFALLYENDTURN")
@@ -283,7 +290,7 @@ class Gen:
 
         return rt
 
-    def strDamage(self):
+    def strDamage(self,mainTarget):
         rt = {"DAMAGE":[]}
         myType = "CRUSH"
 
@@ -294,14 +301,19 @@ class Gen:
         rt["DAMAGE"].append("TYPE="+myType)
 
         rt["DAMAGE"].append("AMT="+self.createDamage())
-        rt["DAMAGE"].append("TARGET="+self.createTarget(True))
+        rt["DAMAGE"].append("TARGET="+self.createTarget(mainTarget,True))
         calcR = random.randint(0,15)
         calcB = random.randint(0,30)
         rt["DAMAGE"].append("CRIT="+str(calcR))
         rt["DAMAGE"].append("CRITBONUS="+str(calcB))
         return rt
 
-    def strDo(self):
+    def strTrigger(self):
+        acc = random.randint(70,100)
+        t = ["HIT="+str(acc)]
+        return t
+
+    def strDo(self,mainTarget):
         self.moveMech = {}
         if len(self.totalMech) > 0:
             nl = random.randint(1,4)
@@ -310,16 +322,17 @@ class Gen:
                 self.moveMech[c] = self.totalMech[c]
 
         rt = "DO="
-        myDo = "BUFF"
+        myDoChoices = {"DAMAGE":1,"BUFF":0.5,"DEBUFF":0.5}
+        myDo = self.randomWeightDict(myDoChoices)
         dc = {}
         if myDo == "DAMAGE":
-            dc = self.strDamage()
+            dc = self.strDamage(mainTarget)
         elif myDo == "BUFF":
-            dc = self.strBuff(False)
+            dc = self.strBuff(mainTarget,False)
         elif myDo == "DEBUFF":
-            dc = self.strBuff(True)
+            dc = self.strBuff(mainTarget,True)
 
-        dc["TRIGGER"] = ["HIT=90"]
+        dc["TRIGGER"] = self.strTrigger()
 
         rt += json.dumps(dc)
 
@@ -331,9 +344,12 @@ class Gen:
 
        
         dos = []
-        nl = random.randint(1,1)
+        nl = random.randint(1,4)
+        moveNumberWeights = {"1":1,"2":1,"3":1}
+        mainTargetList = {"ALLY":0.3,"ENEMY":1}
+        mainTarget = self.randomWeightDict(mainTargetList)
         for x in range(0,nl):
-            dos.append(self.strDo())
+            dos.append(self.strDo(mainTarget))
 
         rt += "NAME="
         tempName = ""
