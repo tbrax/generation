@@ -180,6 +180,16 @@ class Hero:
             return True
         return False
 
+    def canUseMove(self):
+        totalTrue = True
+        for x in self.buffs:
+            if x.do == "STUN":
+                totalTrue = False
+            elif x.do == "SLEEP":
+                totalTrue = False
+
+        return totalTrue
+
     def die(self):
         self.life = "DEAD"
         self.ownerGame.gameAction("DIED",self,self)
@@ -308,7 +318,7 @@ class Hero:
 
 
     def useMove(self,moveName,target):
-        if self.myTurn and self.canFight():
+        if self.myTurn and self.canFight() and self.canUseMove():
             for x in self.moves:
                 if x.name == moveName: 
                     msg = self.getDisplayName() + " used " + moveName + " on " + target.getDisplayName()
