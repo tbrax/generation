@@ -48,32 +48,47 @@ class Gen:
 
     def loadKeyWords(self):
         columns = defaultdict(list) # each value in each column is appended to a list
-        with open("keywords\keyS.txt") as f:
+        with open("keywords\\keyS.csv") as f:
             reader = csv.DictReader(f) # read rows into a dictionary format
             for row in reader: # read a row as {column1: value1, column2: value2,...}
                 for (k,v) in row.items(): # go over each column name and value 
                     columns[k].append(v.upper())
 
-        with open("keywords\keyT.txt") as f:
+        with open("keywords\\keyT.csv") as f:
             reader = csv.DictReader(f) # read rows into a dictionary format
             for row in reader: # read a row as {column1: value1, column2: value2,...}
                 for (k,v) in row.items(): # go over each column name and value 
                     columns[k].append(v.upper())
 
-        with open("keywords\keyR.csv") as f:
+        with open("keywords\\keyR.csv") as f:
             reader = csv.DictReader(f) # read rows into a dictionary format
             for row in reader: # read a row as {column1: value1, column2: value2,...}
                 for (k,v) in row.items(): # go over each column name and value 
                     columns[k].append(v.upper())
 
+        with open("keywords\\keyM.csv") as f:
+            reader = csv.DictReader(f) # read rows into a dictionary format
+            for row in reader: # read a row as {column1: value1, column2: value2,...}
+                for (k,v) in row.items(): # go over each column name and value 
+                    columns[k].append(v.upper())
+
+
+        addColumns = {}
         for (k,v) in columns.items():
             for element in v:
                 if "+" in element:
-                    sp = element.replace("+", "")
-                    v.remove(element)
-                    columns[k] = v + columns[sp]
-
+                    #print(v)
+                    sp = element.replace("+", "")                 
+                    element = ""
+                    if (sp in columns):
+                        columns[k] = v + columns[sp]
+                    else:
+                        print("Cannot find: " + sp)
+                    #print(v)
+                    #v.remove(element)
         self.columns = columns
+
+        #self.columns.update(addColumns)
 
     def listToPool(self,listGive):
         l2 = {}
@@ -84,6 +99,8 @@ class Gen:
 
 
         columns = self.columns
+
+        #print(columns)
 
         for (k,v) in columns.items():
             for row in v:
@@ -96,6 +113,8 @@ class Gen:
         
         self.poolItem = poolItem
         self.poolName = poolName
+        #print(self.poolItem)
+        #print(self.poolName)
 
 
         
@@ -130,7 +149,7 @@ class Gen:
 
     def calcStats(self):
         retStats = self.statsPlus.copy()
-        multN = 50
+        multN = 20
         for key, value in self.statsMinus.items():
             if key in retStats:
                 retStats[key] = retStats[key] - self.statsMinus[key]
@@ -149,15 +168,15 @@ class Gen:
 
     def calcType0(self):
         retStats = self.typePlus.copy()
-        multN = 50
+        multN = 10
         for key, value in self.typeResist.items():
             if key in retStats:
-                retStats[key] = retStats[key] + self.statsMinus[key]
+                retStats[key] = retStats[key] + self.typeResist[key]
             else:
                 retStats[key] = (self.typeResist[key]) 
         for key, value in self.typeMinus.items():
             if key in retStats:
-                retStats[key] = retStats[key] - self.statsMinus[key]
+                retStats[key] = retStats[key] - self.typeMinus[key]
             else:
                 retStats[key] = -(self.typeMinus[key])       
         for key, value in retStats.items():
@@ -218,19 +237,39 @@ class Gen:
     def createDamage(self):
         damage = 0
         damage += random.randint(10,15)
-        if "MECHPLUSDAMAGE" in self.moveMech:
+        if "STATPLUSDAMAGE" in self.moveMech:
             damage += random.randint(3,6)
-        elif "MECHMINUSDAMAGE" in self.moveMech:
+        elif "STATMINUSDAMAGE" in self.moveMech:
             damage -= random.randint(3,6)
 
         d = ""
         d+=str(damage)
         bonusAttributesList = {}
         for k, v in self.moveMech.items():
-            if k.startswith("MECHDAMAGESTAT"):
-                stt = k.replace("MECHDAMAGESTAT", "")
+            if (k.startswith("STATPLUS") or 
+                k.startswith("MECHBUFF") or 
+                k.startswith("STRONGVS")):
+                bonusAttributesList[k] = v
 
         bonusAttributes = self.randomWeightDict(bonusAttributesList)
+        bonusTx = ""
+        if bonusAttributes != False:
+            self.addToName(self.columns[bonusAttributes])
+            if bonusAttributes.startswith("STATPLUS"):
+                r = float(random.randint(50,200)/100)
+                stt = bonusAttributes.replace("STATPLUS","")
+                bonusTx += "+"+str(r)+"*USER"+stt
+            elif bonusAttributes.startswith("MECHBUFF"):
+                r = float(random.randint(50,200)/100)
+                stt = bonusAttributes.replace("MECHBUFF","")
+                bonusTx += "+"+str(r)+"*USER"+stt
+            elif bonusAttributes.startswith("STRONGVS"):
+                r = float(random.randint(50,200)/100)
+                stt = bonusAttributes.replace("STRONGVS","")
+                bonusTx += "+"+str(r)+"*TARRACE["+stt+"]"
+
+        d += bonusTx
+
         return d
 
     def createTarget(self,mainTarget,isEnemy):
@@ -274,9 +313,10 @@ class Gen:
         st = self.randomWeightDict(tStDict)
         if (st != False):
             ct = st
-
-        self.addToName(self.columns["STATPLUS"+ct])
-        self.addToName(self.columns["MECH"+bType+ct])
+        if (("STATPLUS"+ct) in self.columns):
+            self.addToName(self.columns["STATPLUS"+ct])
+        elif (("MECH"+bType+ct) in self.columns):
+            self.addToName(self.columns["MECH"+bType+ct])
 
         rt[bType].append("TYPE="+ct)
         
@@ -284,7 +324,8 @@ class Gen:
         rt[bType].append("AMT="+str(amt))
         rt[bType].append("TARGET="+self.createTarget(mainTarget,isDebuff))
         rt[bType].append("NAME="+namePrefix+ct)
-        rt[bType].append("DUR=3")
+        dAmt = random.randint(2,4)
+        rt[bType].append("DUR="+str(dAmt))
         rt[bType].append("COUNTTRI=SELFALLYENDTURN")
         rt[bType].append("ACT=STARTCOUNT")
 
@@ -296,8 +337,8 @@ class Gen:
 
         if len(self.typePlus) > 0:
             myType = self.randomWeightDict(self.typePlus)
+            self.addToName(self.columns["TYPEPLUS"+myType])
 
-        self.addToName(self.columns["TYPEPLUS"+myType])
         rt["DAMAGE"].append("TYPE="+myType)
 
         rt["DAMAGE"].append("AMT="+self.createDamage())
@@ -345,10 +386,11 @@ class Gen:
        
         dos = []
         nl = random.randint(1,4)
-        moveNumberWeights = {"1":1,"2":1,"3":1}
+        moveNumberWeights = {"1":1,"2":0.9,"3":0.5,"4":0.1}
+        moveNumberChoose = self.randomWeightDict(moveNumberWeights)
         mainTargetList = {"ALLY":0.3,"ENEMY":1}
         mainTarget = self.randomWeightDict(mainTargetList)
-        for x in range(0,nl):
+        for x in range(0,int(moveNumberChoose)):
             dos.append(self.strDo(mainTarget))
 
         rt += "NAME="

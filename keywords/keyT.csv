@@ -1,0 +1,12 @@
+TYPEPLUSFIRE,TYPEMINUSFIRE,TYPEPLUSWATER,TYPEMINUSWATER,TYPERESISTWATER,TYPEPLUSELECTRIC,TYPEMINUSELECTRIC,TYPERESISTELECTRIC,TYPEPLUSICE,TYPEMINUSICE,TYPEPLUSWIND,TYPEMINUSWIND,TYPEPLUSDARK,TYPEMINUSDARK,TYPEPLUSLIGHT,TYPEMINUSLIGHT,TYPEPLUSCRUSH,TYPEMINUSCRUSH,TYPEPLUSSLASH,TYPEMINUSSLASH,TYPEPLUSPIERCE,TYPEMINUSPIERCE,TYPEPLUSEXPLOSIVE,TYPEMINUSEXPLOSIVE,TYPEPLUSPOISON,TYPEMINUSPOISON,TYPEPLUSMIND,TYPEMINUSMIND,TYPEPLUSMATH,TYPEMINUSMATH,TYPEPLUSSONIC,TYPEMINUSSONIC,TYPERESISTSONIC
+sun,TYPEPLUSICE+,sea,canyon,umbrella,thunder,,rubber,cold,reptile,blustery,,occult,scared,heaven,TYPEPLUSDARK+,crush,TYPEPLUSICE+,sword,,gun,,bomb,glass,poison,RACEHUMAN+,psychic,,algorithm,,RACEINSTRUMENT+,,earplugs
+fire,,bay,,,lightning,,,frozen,,breath,,dark,meek,angel,,mace,TYPEMINUSEXPLOSIVE+,axe,,harpoon,,gunpowder,,venom,,mind,,math,,loud,,
+lava,,water,,,Spark,,,ice,,breeze,,evil,,holy,,hammer,fragile,halbard,,tusk,,cannon,,gas,,,,equation,,sonic,,
+volcano,,ocean,,,storm,,,snow,,field,,shadow,,light,,rock,,claw,,horn,,nuclear,,toxin,,,,mathematics,,supersonic,,
+burn,,lake,,,electric,,,yeti,,ghost,,vampire,,god,,stone,,slash,,fang,,volcano,,toxicant,,,,quantity,,sound,,
+demon,,pond,,,power,,,,,storm,,witch,,religion,,,,,,tooth,,explosive,,bane,,,,patern,,,,
+,,river,,,computer,,,,,wind,,RACEUNDEAD+,,,,,,,,spear,,,,,,,,proof,,,,
+,,stream,,,,,,,,windmill,,,,,,,,,,pierce,,,,,,,,logic,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,theory,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,algebra,,,,
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,geometry,,,,
