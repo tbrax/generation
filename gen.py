@@ -25,6 +25,7 @@ class Gen:
         self.columns = {}
         self.moveName = {}
         self.madeMoves = {}
+        self.artWords = {}
         
 
     
@@ -97,7 +98,7 @@ class Gen:
         for (k,v) in listGive.items():
             l2[k.upper()] = v   
 
-
+        self.artWords = l2
         columns = self.columns
 
         #print(columns)
@@ -158,7 +159,8 @@ class Gen:
         
         for key, value in retStats.items():
             i = random.randint(50,60)
-            retStats[key] *= multN
+            while(abs(retStats[key])<10):
+                retStats[key] *= 10
             retStats[key] *= (1+(i/100))
             retStats[key] = round(retStats[key])
             if key == "MAXHEALTH":
@@ -181,7 +183,8 @@ class Gen:
                 retStats[key] = -(self.typeMinus[key])       
         for key, value in retStats.items():
             i = random.randint(10,20)
-            retStats[key] *= multN
+            while(abs(retStats[key])<10):
+                retStats[key] *= 10
             retStats[key] *= (1+(i/100))
             retStats[key] = min(90,retStats[key])
             retStats[key] = round(retStats[key])
@@ -193,7 +196,8 @@ class Gen:
 
         for key, value in retStats.items():
             i = random.randint(10,20)
-            retStats[key] *= multN
+            while(abs(retStats[key])<10):
+                retStats[key] *= 10
             retStats[key] *= (1+(i/100))
             retStats[key] = round(retStats[key])
         return retStats
@@ -241,7 +245,6 @@ class Gen:
             damage += random.randint(3,6)
         elif "STATMINUSDAMAGE" in self.moveMech:
             damage -= random.randint(3,6)
-
         d = ""
         d+=str(damage)
         bonusAttributesList = {}
@@ -290,19 +293,30 @@ class Gen:
                 d["SELECTED"]=1
 
         return self.randomWeightDict(d)
-    
+
     def strBuff(self,mainTarget,isDebuff):
+
+        return self.strCBuff(mainTarget,isDebuff)
+    
+    def strCBuff(self,mainTarget,isDebuff):
         bType = "BUFF"
         amt = random.randint(15,50)
         namePrefix = "INCREASED_"
+        baseCt = {"DAMAGE":1,"SPEED":1,"ARMOR":1,"DODGE":1,"ACCURACY":1,"CRIT":1} 
         if (isDebuff):
             bType = "DEBUFF"
             amt *= -1
             namePrefix = "DECREASED_"
+            baseCt["CRITCHANCERESIST"] = 1
+            baseCt["CRITDAMAGERESIST"] = 1
+        else:
+            baseCt["CRITDAMAGE"] = 1
+            baseCt["HEAL"] = 1
+            baseCt["LIFESTEAL"] = 1
 
         rt = {bType:[]}
         rt[bType].append("DO=STAT")
-        baseCt = {"DAMAGE":1,"SPEED":1,"ARMOR":1} 
+        
         ct = self.randomWeightDict(baseCt)
         
         tStDict = self.statsPlus.copy()
@@ -331,22 +345,27 @@ class Gen:
 
         return rt
 
-    def strDamage(self,mainTarget):
-        rt = {"DAMAGE":[]}
+    def strDamage(self,mainTarget,isHarm=True):
+        if (isHarm):
+            tp = "DAMAGE"
+        else:
+            tp = "HEAL"
+        rt = {tp:[]}
         myType = "CRUSH"
 
         if len(self.typePlus) > 0:
             myType = self.randomWeightDict(self.typePlus)
             self.addToName(self.columns["TYPEPLUS"+myType])
-
-        rt["DAMAGE"].append("TYPE="+myType)
-
-        rt["DAMAGE"].append("AMT="+self.createDamage())
-        rt["DAMAGE"].append("TARGET="+self.createTarget(mainTarget,True))
+        rt[tp].append("TYPE="+myType)
+        if (isHarm):
+            rt[tp].append("AMT="+self.createDamage())
+        else:
+            rt[tp].append("AMT=-1*("+self.createDamage()+")")
+        rt[tp].append("TARGET="+self.createTarget(mainTarget,isHarm))
         calcR = random.randint(0,15)
         calcB = random.randint(0,30)
-        rt["DAMAGE"].append("CRIT="+str(calcR))
-        rt["DAMAGE"].append("CRITBONUS="+str(calcB))
+        rt[tp].append("CRIT="+str(calcR))
+        rt[tp].append("CRITBONUS="+str(calcB))
         return rt
 
     def strTrigger(self):
@@ -363,15 +382,17 @@ class Gen:
                 self.moveMech[c] = self.totalMech[c]
 
         rt = "DO="
-        myDoChoices = {"DAMAGE":1,"BUFF":0.5,"DEBUFF":0.5}
+        myDoChoices = {"DAMAGE":1,"BUFF":0.3,"DEBUFF":0.4,"HEAL":0.3}
         myDo = self.randomWeightDict(myDoChoices)
         dc = {}
         if myDo == "DAMAGE":
-            dc = self.strDamage(mainTarget)
+            dc = self.strDamage(mainTarget,True)
         elif myDo == "BUFF":
             dc = self.strBuff(mainTarget,False)
         elif myDo == "DEBUFF":
             dc = self.strBuff(mainTarget,True)
+        elif myDo == "HEAL":
+            dc = self.strDamage(mainTarget,False)
 
         dc["TRIGGER"] = self.strTrigger()
 
@@ -398,8 +419,15 @@ class Gen:
 
         nl = random.randint(1,4)
 
-        if len(self.moveName) == 0:
-            self.moveName.append("Default_Name")
+        moveNumberWeights = {"2":1,"3":0.9}
+        moveNumberChoose = self.randomWeightDict(moveNumberWeights)
+
+        for x in range(int(moveNumberChoose)):
+            self.moveName.append(random.choice(list(self.artWords.keys())))
+            
+
+        
+
         for x in range(0,nl):
             newRc = random.choice(self.moveName)
             if (newRc not in tempName):
@@ -420,7 +448,10 @@ class Gen:
     def totalChar(self):
         self.madeMoves = {}
         rt = ""
-        rt += self.strMove()
+        moveNumberWeights = {"3":1,"4":0.9,"5":0.8,"6":0.7}
+        moveNumberChoose = self.randomWeightDict(moveNumberWeights)
+        for x in range(int(moveNumberChoose)):
+            rt += self.strMove()
         rt += self.strChar()
         
         return rt

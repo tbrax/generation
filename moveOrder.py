@@ -98,7 +98,7 @@ class MoveOrder:
 
     def activateDo(self,user,target):
         if self.checkTriggers(user,target):
-            if self.am == "DAMAGE":
+            if self.am == "DAMAGE" or self.am =="HEAL":
                 user.dealDamage(target,self.heldValue,self.type,metaData = self.metaInfo)
             elif self.am == "BUFF" or self.am == "DEBUFF":
                 b = Buff(user,target,self.am)

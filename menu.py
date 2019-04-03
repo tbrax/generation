@@ -36,14 +36,17 @@ class Menu:
         t = self.loadWiki[0]
         
         t3 = sorted(t.t2, key=t.t2.get, reverse=True)[:10]
-        print(t3)
+        t4 = {}
+        for x in t3:
+            t4[x] = t.t2[x]
+        print(t4)
         #t3 = heapq.nlargest(10, t.t2, key=t.t2.get)
         #d = {"POwerful":1,"mightY":1.7, "ziPpy":2,"burn":0.5,"cold":0.7,"man":1,"vampire":2}
-        #ga = Gen()
-        #ga.name = t.name
-        #ga.loadKeyWords()
-        #ga.calc(t3)
-        #ga.writeChar()
+        ga = Gen()
+        ga.name = t.name
+        ga.loadKeyWords()
+        ga.calc(t4)
+        ga.writeChar()
 
     def searchFiles(self):
         for filename in os.listdir("moveFolder"):

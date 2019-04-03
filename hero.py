@@ -244,6 +244,11 @@ class Hero:
         n -= target.stats["CRITRESIST"]
         return i < n
 
+    def doLifeSteal(self,target,amt,damageType):
+        tam = amt*(self.stats["LIFESTEAL"]/100)
+        self.takeHeal(tam,False)
+                #takeHeal(self,amt,damageTypeC,dc,metaData)
+
     def dealDamage(self,target,amt,damageType, metaData = {}):
         if "baseCrit" not in metaData:
             metaData["baseCrit"] = "0"
@@ -275,7 +280,7 @@ class Hero:
         damageTypeC = self.parseType(target,self,damageType)
         amt = amt * float(max(((100+self.typeDamage[damageTypeC])/100),0))
         dc = self.doesCrit(target,metaData["baseCrit"])
-        target.takeHeal(self,amt,damageTypeC,dc,metaData)
+        target.takeHeal(amt,dc)
         self.ownerGame.gameAction("DEALHEAL",self,target)
 
     def takeHeal(self,amt,crit):
@@ -309,6 +314,7 @@ class Hero:
             #self.ownerGame.addMessage({giveStr})
             self.ownerGame.addMessageQ(giveStr,0)
             self.ownerGame.gameAction("TAKEDAMAGE",self,source)
+            source.doLifeSteal(self,calcAmt,damageType)
         elif calcAmt < 0:
             self.takeHeal(calcAmt,crit)
 
