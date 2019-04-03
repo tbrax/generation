@@ -9,7 +9,7 @@ import nltk
 from nltk.corpus import wordnet 
 class Gen:
     def __init__(self):
-        self.name = "man"
+        self.name = ""
         self.keywords = {}
         self.poolItem = {}
         self.poolName = {}
@@ -430,21 +430,21 @@ class Gen:
         with open("moveFolder\\"+self.name+ ".txt", "w", encoding="utf-8") as f:
             f.write(self.totalChar())
 
-    def calc(self):
-        d = {"POwerful":1,"mightY":1.7, "ziPpy":2,"burn":0.5,"cold":0.7,"man":1,"vampire":2}
+    def calc(self,d):
+        
         
         self.listToPool(d)
         #print(self.poolName)
         self.splitPool()
 
-def main():
+#def main():
     
-    ga = Gen()
-    ga.loadKeyWords()
-    ga.calc()
+ #   ga = Gen()
+  #  ga.loadKeyWords()
+   # ga.calc()
     #print(ga.columns)
-    ga.writeChar()
+    #ga.writeChar()
 
-if __name__== "__main__":
-    main()
+#if __name__== "__main__":
+    #main()
     #input("Press enter to exit")

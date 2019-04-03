@@ -1,6 +1,7 @@
 from tkinterDisplay import *
 from game import *
 from menu import *
+from tf import *
 
 def main():
     

@@ -1,9 +1,12 @@
 from hero import Hero
 from move import Move
+from tf import tf
+from gen import Gen
 import random
 import json
 import os
 import copy
+import heapq
 
 
 class Menu:
@@ -12,13 +15,35 @@ class Menu:
         self.savedHeros = []
         self.queuePlayers = []
         self.numTeams = 2
+        self.loadWiki = []
         self.menuSetup()
+        
+
 
     def menuSetup(self):
         self.loadHerosFromFiles()
         for x in range(self.numTeams):
             e = []
             self.queuePlayers.append(e)
+
+    def loadArticle(self,art):
+        newTf = tf()
+        newTf.computeText(art)
+        self.loadWiki.append(newTf)
+        self.genHero()
+
+    def genHero(self):
+        t = self.loadWiki[0]
+        
+        t3 = sorted(t.t2, key=t.t2.get, reverse=True)[:10]
+        print(t3)
+        #t3 = heapq.nlargest(10, t.t2, key=t.t2.get)
+        #d = {"POwerful":1,"mightY":1.7, "ziPpy":2,"burn":0.5,"cold":0.7,"man":1,"vampire":2}
+        #ga = Gen()
+        #ga.name = t.name
+        #ga.loadKeyWords()
+        #ga.calc(t3)
+        #ga.writeChar()
 
     def searchFiles(self):
         for filename in os.listdir("moveFolder"):

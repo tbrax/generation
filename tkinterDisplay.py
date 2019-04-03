@@ -47,6 +47,12 @@ class displayClass:
         optionFrame = tk.Frame(self.menuFrame)
         optionFrame.grid(row=0,column=0)
 
+        wikiFrame = tk.Frame(self.menuFrame)
+        wikiFrame.grid(row=1,column=0)
+
+        w0 = tk.Button(wikiFrame, font=(selectedFont,sizeFont),text="Obtain Wiki",command = lambda: self.windowWiki())
+        w0.grid(row=0,column=0)
+
         w0 = tk.Button(optionFrame, font=(selectedFont,sizeFont),text="Start Game",command = lambda: self.startButton())
         w0.grid(row=0,column=0)
 
@@ -330,6 +336,25 @@ class displayClass:
             if (cc > statsRow):
                 cc = 0
                 rc += 1
+
+    def loadArticle(self,t):
+        tinput = t.get("1.0",tk.END)
+        tinput = tinput.rstrip()
+        #print(tinput)
+        self.menu.loadArticle(tinput)
+
+    def windowWiki(self):
+        newWin = tk.Toplevel(self.root)
+        newWin.grid()
+        wkFrame = tk.Frame(newWin)
+        wkFrame.grid(row=0,column=0)
+        t = tk.Text(wkFrame, height=1, width=30,font=(selectedFont,sizeFont))
+        t.grid(column=0,row=0)
+        w0 = tk.Button(wkFrame, font=(selectedFont,sizeFont),text="Load Article",command = lambda t=t :self.loadArticle(t))    
+        w0.grid(column=0,row=1)
+        
+
+        
 
     def windowPlayer(self,player):
         newWin = tk.Toplevel(self.root)
