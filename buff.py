@@ -35,10 +35,12 @@ class Buff:
 
     def startBuff(self):
         self.duration = self.source.parseNum(self.target,self.source,self.duration)
-
         if self.activate == "STARTCOUNT":
             self.doTrigger()
         self.addSelf()
+        self.target.ownerGame.gameAction("TAKE{0}".format(self.myType),self.source,self.target)
+        giveStr = "{0} applied to {1}".format(self.name,self.target.name)
+        self.target.ownerGame.addMessageQ(giveStr,0)
 
     def endBuff(self):
         if self.activate == "ENDCOUNT":
@@ -57,9 +59,7 @@ class Buff:
     def doTrigger(self):
 
         if self.do == "USEMOVE":
-
             for x in self.trigger:
-
                 self.source.activateMove(x,self.target)
         elif self.do == "STAT":
             while len(self.value) < len(self.trigger):
@@ -81,6 +81,10 @@ class Buff:
             self.countDown()
         if self.activate in action:
             self.doTrigger()
+        if self.do == "SLEEP":
+            print(action)
+            if (action == "SELFALLYTAKEDAMAGE"):
+                self.endBuff()
 
     
 

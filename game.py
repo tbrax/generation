@@ -170,7 +170,7 @@ class Game:
             self.players.append(tm)
         else:
             self.players[team].append(p)
-        p.id = len(self.players[team])
+        p.id = "{0} {1}".format(team,len(self.players[team]))
 
     def makePlayer(self,name,team):
         p = Hero(self)

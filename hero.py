@@ -190,6 +190,7 @@ class Hero:
         totalTrue = True
         for x in self.buffs:
             if x.do == "STUN":
+                print("Stunned")
                 totalTrue = False
             elif x.do == "SLEEP":
                 totalTrue = False
@@ -245,8 +246,10 @@ class Hero:
         return i < n
 
     def doLifeSteal(self,target,amt,damageType):
+
         tam = amt*(self.stats["LIFESTEAL"]/100)
-        self.takeHeal(tam,False)
+        if tam > 0:
+            self.takeHeal(tam,False)
                 #takeHeal(self,amt,damageTypeC,dc,metaData)
 
     def dealDamage(self,target,amt,damageType, metaData = {}):
@@ -313,7 +316,7 @@ class Hero:
                 giveStr = "{0} takes {1} {2} damage".format(self.getDisplayName(),showAmt,damageType.upper())
             #self.ownerGame.addMessage({giveStr})
             self.ownerGame.addMessageQ(giveStr,0)
-            self.ownerGame.gameAction("TAKEDAMAGE",self,source)
+            self.ownerGame.gameAction("TAKEDAMAGE",source,self)
             source.doLifeSteal(self,calcAmt,damageType)
         elif calcAmt < 0:
             self.takeHeal(calcAmt,crit)
@@ -352,19 +355,25 @@ class Hero:
             for x in self.metaMoves:
                 if x.name == moveName:
                     x.use(self,target)
-
+    def playMsg(self,msg):
+        print(msg)
 
     def useMove(self,moveName,target):
-        if self.myTurn and self.canFight() and self.canUseMove():
-            for x in self.moves:
-                if x.name == moveName: 
-                    msg = self.getDisplayName() + " used " + moveName + " on " + target.getDisplayName()
-
-                    self.ownerGame.addMessageQ(msg,1)
-                    self.ownerGame.gameAction("USEMOVE",self,target)
-                    self.activateMove(moveName,target)
+        if self.myTurn:
+            if self.canFight():
+                if self.canUseMove():
+                    for x in self.moves:
+                        if x.name == moveName: 
+                            msg = self.getDisplayName() + " used " + moveName + " on " + target.getDisplayName()
+                            self.ownerGame.addMessageQ(msg,1)
+                            self.ownerGame.gameAction("USEMOVE",self,target)
+                            self.activateMove(moveName,target)
+                else:
+                    self.playMsg("{0} cannot use moves".format(self.getDisplayName()))
+            else:
+                self.playMsg("{0} cannot fight".format(self.getDisplayName()))
         else:
-            print("It is not " + self.getDisplayName() + " turn")
+            self.playMsg("It is not {0} turn".format(self.getDisplayName()))
         
         
 

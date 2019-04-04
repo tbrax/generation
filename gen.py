@@ -315,30 +315,46 @@ class Gen:
             baseCt["LIFESTEAL"] = 1
 
         rt = {bType:[]}
-        rt[bType].append("DO=STAT")
-        
-        ct = self.randomWeightDict(baseCt)
-        
-        tStDict = self.statsPlus.copy()
+        myDoList = {"STAT":1}
         for (k,v) in self.totalMech.items():
-            if ("MECH"+bType in k):
-                sk = k.replace("MECH"+bType,"")
-                tStDict[sk] = v
-        st = self.randomWeightDict(tStDict)
-        if (st != False):
-            ct = st
-        if (("STATPLUS"+ct) in self.columns):
-            self.addToName(self.columns["STATPLUS"+ct])
-        elif (("MECH"+bType+ct) in self.columns):
-            self.addToName(self.columns["MECH"+bType+ct])
+            if ("SLEEP" in k):
+                myDoList["SLEEP"] = 1
+            elif ("STUN" in k):
+                 myDoList["STUN"] = 1
 
-        rt[bType].append("TYPE="+ct)
+
+        myDo = self.randomWeightDict(myDoList)
+        if (myDo == "STAT"):
+            rt[bType].append("DO=STAT")
+            
+            ct = self.randomWeightDict(baseCt)
+            
+            tStDict = self.statsPlus.copy()
+            for (k,v) in self.totalMech.items():
+                if ("MECH"+bType in k):
+                    sk = k.replace("MECH"+bType,"")
+                    tStDict[sk] = v
+            st = self.randomWeightDict(tStDict)
+            if (st != False):
+                ct = st
+            if (("STATPLUS"+ct) in self.columns):
+                self.addToName(self.columns["STATPLUS"+ct])
+            elif (("MECH"+bType+ct) in self.columns):
+                self.addToName(self.columns["MECH"+bType+ct])
+
+            rt[bType].append("TYPE="+ct)
+            dAmt = random.randint(2,4)
+            rt[bType].append("NAME="+namePrefix+ct)
+            rt[bType].append("AMT="+str(amt))
+
+        elif (myDo == "STUN" or myDo == "SLEEP"):
+            dAmt = random.randint(1,3)
+            rt[bType].append("NAME="+myDo)
+            self.addToName(self.columns["MECH"+myDo])
         
 
-        rt[bType].append("AMT="+str(amt))
-        rt[bType].append("TARGET="+self.createTarget(mainTarget,isDebuff))
-        rt[bType].append("NAME="+namePrefix+ct)
-        dAmt = random.randint(2,4)
+        
+        rt[bType].append("TARGET="+self.createTarget(mainTarget,isDebuff))   
         rt[bType].append("DUR="+str(dAmt))
         rt[bType].append("COUNTTRI=SELFALLYENDTURN")
         rt[bType].append("ACT=STARTCOUNT")
@@ -351,11 +367,15 @@ class Gen:
         else:
             tp = "HEAL"
         rt = {tp:[]}
-        myType = "CRUSH"
+        dTypes = {"CRUSH":1,"PIERCE":1,"SLASH":1}
+        
 
         if len(self.typePlus) > 0:
-            myType = self.randomWeightDict(self.typePlus)
-            self.addToName(self.columns["TYPEPLUS"+myType])
+            # myType = self.randomWeightDict(self.typePlus)
+            dTypes[self.randomWeightDict(self.typePlus)] = 4
+        myType = self.randomWeightDict(dTypes)
+        self.addToName(self.columns["TYPEPLUS"+myType])
+
         rt[tp].append("TYPE="+myType)
         if (isHarm):
             rt[tp].append("AMT="+self.createDamage())
@@ -415,7 +435,7 @@ class Gen:
             dos.append(self.strDo(mainTarget))
 
         rt += "NAME="
-        tempName = ""
+        
 
         nl = random.randint(1,4)
 
@@ -424,17 +444,19 @@ class Gen:
 
         for x in range(int(moveNumberChoose)):
             self.moveName.append(random.choice(list(self.artWords.keys())))
-            
-
         
-
-        for x in range(0,nl):
-            newRc = random.choice(self.moveName)
-            if (newRc not in tempName):
-                if x > 0:
-                    tempName += "_"
-                tempName += newRc
-                
+        needName = True
+        while(needName):
+            tempName = ""
+            for x in range(0,nl):
+                newRc = random.choice(self.moveName)
+                if (newRc not in tempName):
+                    if x > 0:
+                        tempName += "_"
+                    tempName += newRc
+            if (tempName not in self.madeMoves):
+                needName = False
+                    
         self.madeMoves[tempName] = 1
         rt += tempName + "\n"
 
