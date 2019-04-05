@@ -140,8 +140,15 @@ class Hero:
                 actionStr += "ALLY"
             else:
                 actionStr += "ENEMY"
+        else:
+            if action == "STARTGAME":
+                self.startGame()
         finalStr = actionStr + action
         self.checkAction(finalStr)
+
+    def startGame(self):
+        self.life = "ALIVE"
+        self.stats["HEALTH"] = self.stats["MAXHEALTH"]
 
     def checkAction(self,action):
         for x in self.buffs:

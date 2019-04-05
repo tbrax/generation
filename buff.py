@@ -39,7 +39,7 @@ class Buff:
             self.doTrigger()
         self.addSelf()
         self.target.ownerGame.gameAction("TAKE{0}".format(self.myType),self.source,self.target)
-        giveStr = "{0} applied to {1}".format(self.name,self.target.name)
+        giveStr = "{0} applied to {1}".format(self.name,self.target.getDisplayName())
         self.target.ownerGame.addMessageQ(giveStr,0)
 
     def endBuff(self):

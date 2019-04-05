@@ -44,6 +44,7 @@ class Game:
         self.startGame()
 
     def startGame(self):
+        self.gameAction("STARTGAME",0,0)
         self.calcTurn()
 
     def endPlayerTurns(self):
@@ -170,7 +171,7 @@ class Game:
             self.players.append(tm)
         else:
             self.players[team].append(p)
-        p.id = "{0} {1}".format(team,len(self.players[team]))
+        p.id = "{0} {1}".format(team,len(self.players[team])-1)
 
     def makePlayer(self,name,team):
         p = Hero(self)

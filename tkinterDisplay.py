@@ -12,6 +12,7 @@ class displayClass:
         self.msgStart = 0
         self.messageList = []
         self.menu = m
+        self.menu.display = self
         self.root = tk.Tk()
         #self.root.after(0, self.task)
         self.playerWindow = 0
@@ -22,6 +23,8 @@ class displayClass:
         self.root.mainloop()
         
 
+    def rcd(self,msg):
+        return msg.replace("_"," ")
 
     def task(self):
         self.root.after(1000, self.task)
@@ -71,7 +74,7 @@ class displayClass:
             w0.grid(row=0,column=idx)
 
             for idy, y in enumerate(x):
-                w0 = tk.Button(teamsContentFrame, font=(selectedFont,sizeFont),text=y.getDisplayName(),command = lambda x0=x,y0=y: self.removePlayerFromTeam(x0,y0))
+                w0 = tk.Button(teamsContentFrame, font=(selectedFont,sizeFont),text=self.rcd(y.getDisplayName()),command = lambda x0=x,y0=y: self.removePlayerFromTeam(x0,y0))
                 w0.grid(row=idy+1,column=idx)
 
         ##############Player Options
@@ -96,13 +99,13 @@ class displayClass:
             cx = idx
             singleFrame = tk.Frame(optionPlayerFrame)
             singleFrame.grid(row=idx,column=0)
-            nameButton = tk.Button(singleFrame, font=(selectedFont,sizeFont),text=self.menu.savedHeros[cx].getDisplayName(),command = lambda x0=self.menu.savedHeros[cx]: self.showSavedStats(x0))
+            nameButton = tk.Button(singleFrame, font=(selectedFont,sizeFont),text=self.rcd(self.menu.savedHeros[cx].getDisplayName()),command = lambda x0=self.menu.savedHeros[cx]: self.showSavedStats(x0))
             nameButton.grid(row=0,column=0)
 
             addTeamFrame = tk.Frame(singleFrame)
             addTeamFrame.grid(row=0,column=1)
             for y in range(self.menu.numTeams):
-                addTeamButton = tk.Button(addTeamFrame, font=(selectedFont,sizeFont),text=str(y),command = lambda x0=self.menu.savedHeros[cx],y0=y: self.addPlayerToTeam(x0,y0))
+                addTeamButton = tk.Button(addTeamFrame, font=(selectedFont,sizeFont),text=self.rcd(str(y)),command = lambda x0=self.menu.savedHeros[cx],y0=y: self.addPlayerToTeam(x0,y0))
                 addTeamButton.grid(row=0,column=y)
 
     def removePlayerFromTeam(self,team,y):
@@ -191,7 +194,7 @@ class displayClass:
             if len(self.ownerGame.visibleMessage) > idx:
                 msgLook = len(self.ownerGame.visibleMessage)-1-idx-self.msgStart
                 t = self.ownerGame.visibleMessage[msgLook]
-                x.config(text=str(t))
+                x.config(text=self.rcd(str(t)))
 
     def takeGameMessage(self,msg):
         self.updateMessageFrame()
@@ -212,7 +215,7 @@ class displayClass:
 
     def fillPlayers(self,f,team,teamNum):     
         for idx,x in enumerate(team):
-            w0 = tk.Button(self.allPlayers, font=(selectedFont,sizeFont),text=x.getDisplayName(),command = lambda x0=x: self.windowPlayer(x0))
+            w0 = tk.Button(self.allPlayers, font=(selectedFont,sizeFont),text=self.rcd(x.getDisplayName()),command = lambda x0=x: self.windowPlayer(x0))
             w0.grid(row=teamNum,column=idx)
             if x.myTurn:
                 w0.config(bg="blue")
@@ -224,7 +227,7 @@ class displayClass:
 
     def fillPlayersTarget(self,team,teamNum,window,player,skill):     
         for idx,x in enumerate(team):
-            w0 = tk.Button(window, font=(selectedFont,sizeFont),text=x.getDisplayName(),command = lambda p0=player,x0=x,s0=skill: self.playerUseSkill(p0,x0,s0))
+            w0 = tk.Button(window, font=(selectedFont,sizeFont),text=self.rcd(x.getDisplayName()),command = lambda p0=player,x0=x,s0=skill: self.playerUseSkill(p0,x0,s0))
             w0.grid(row=teamNum,column=idx)
             if x == player:
                 w0.config(bg="blue")
@@ -258,17 +261,37 @@ class displayClass:
         newWin = tk.Toplevel(self.root)
         newWin.grid()
         self.targetWindow = newWin
-        w0 = tk.Label(newWin, font=(selectedFont,sizeFont),text=player.getDisplayName())
+        w0 = tk.Label(newWin, font=(selectedFont,sizeFont),text=self.rcd(player.getDisplayName()))
         w0.grid(row=0)
-        w0 = tk.Label(newWin, font=(selectedFont,sizeFont),text=skillName)
+        w0 = tk.Label(newWin, font=(selectedFont,sizeFont),text=self.rcd(skillName))
         w0.grid(row=1)
-        w0 = tk.Label(newWin, font=(selectedFont,sizeFont),text=player.getMoveByName(skillName).desc)
+        w0 = tk.Label(newWin, font=(selectedFont,sizeFont),text=self.rcd(player.getMoveByName(skillName).desc))
         w0.grid(row=2)
 
         
         targetFrame = tk.Frame(newWin)
         targetFrame.grid(row=3)
         self.fillTeamsTarget(player,skillName,targetFrame)
+
+    def windowBuffs(self,player):
+        statsRow = 2
+        newWin = tk.Toplevel(self.root)
+        newWin.grid()
+        #####
+        w0 = tk.Label(newWin, font=(selectedFont,sizeFont2),text="BUFFS") 
+        w0.grid(row=0)
+        s0Frame = tk.Frame(newWin)
+        s0Frame.grid(row=1)
+        cc = 0
+        rc = 0
+        for idx, (key) in enumerate(player.buffs):     
+            tx = "{0}: {1} ".format(self.rcd(key.name),key.value)
+            w0 = tk.Label(s0Frame, font=(selectedFont,sizeFont2),text=tx)    
+            w0.grid(column=cc,row=rc)
+            cc += 1
+            if (cc > statsRow):
+                cc = 0
+                rc += 1
 
     def windowStats(self,player):
         statsRow = 5
@@ -342,19 +365,59 @@ class displayClass:
         tinput = tinput.rstrip()
         #print(tinput)
         self.menu.loadArticle(tinput)
+        
+        self.menu.loadHerosFromFiles()
+        self.resetMenu()
+        self.resetWiki()
+
+    def loadHero(self):
+        self.menu.genHero()
+        self.resetWiki()
+
+    def resetWiki(self):
+        self.wikiFrame.destroy()
+        self.windowWiki()
 
     def windowWiki(self):
         newWin = tk.Toplevel(self.root)
         newWin.grid()
+        self.wikiFrame = newWin
         wkFrame = tk.Frame(newWin)
         wkFrame.grid(row=0,column=0)
         t = tk.Text(wkFrame, height=1, width=30,font=(selectedFont,sizeFont))
         t.grid(column=0,row=0)
         w0 = tk.Button(wkFrame, font=(selectedFont,sizeFont),text="Load Article",command = lambda t=t :self.loadArticle(t))    
         w0.grid(column=0,row=1)
-        
+        w0 = tk.Button(wkFrame, font=(selectedFont,sizeFont),text="Make Character",command = lambda :self.loadHero())    
+        w0.grid(column=0,row=2)
+
+        w0 = tk.Label(wkFrame, font=(selectedFont,sizeFont),text="Loaded Articles:")
+        w0.grid(row=3)
+        loadFrame = tk.Frame(newWin)
+        loadFrame.grid(row=4,column=0)
+        for idx,x in enumerate(self.menu.loadWiki):
+            w0 = tk.Label(loadFrame, font=(selectedFont,sizeFont),text=x.name)
+            w0.grid(column=0,row=idx)
+
+        w0 = tk.Label(newWin, font=(selectedFont,sizeFont),text="Matched KeyWords:")
+        w0.grid(row=5)
+        t = tk.Text(newWin, height=1, width=30,font=(selectedFont,sizeFont))
+        t.grid(column=0,row=6)
+
 
         
+
+    def warnFewKeyWord(self,match,less,suggList):
+        newWin = tk.Toplevel(self.root)
+        newWin.grid()
+        w0 = tk.Label(newWin, font=(selectedFont,sizeFont),text="Found {0} of {1}keywords, suggested articles:".format(match,less))
+        w0.grid(row=0)
+        other = ""
+        for x in suggList:
+            other += x + ", "
+
+        w0 = tk.Text(newWin,height=5, width=30, font=(selectedFont,sizeFont),text=other.format(less))
+        w0.grid(row=1)
 
     def windowPlayer(self,player):
         newWin = tk.Toplevel(self.root)
@@ -366,8 +429,14 @@ class displayClass:
         w0 = tk.Label(newWin, font=(selectedFont,sizeFont),text=player.textHealth())
         w0.grid(row=1)
 
-        w0 = tk.Button(newWin, font=(selectedFont,sizeFont),text="Stats",command = lambda p=player : self.windowStats(p))    
-        w0.grid(column=0,row=2)
+        sFrame = tk.Frame(newWin)
+        sFrame.grid(column=0,row=2)
+
+        w0 = tk.Button(sFrame, font=(selectedFont,sizeFont),text="Stats",command = lambda p=player : self.windowStats(p))    
+        w0.grid(column=0,row=0)
+
+        w0 = tk.Button(sFrame, font=(selectedFont,sizeFont),text="Buffs",command = lambda p=player : self.windowBuffs(p))    
+        w0.grid(column=1,row=0)
 
         moveFrame = tk.Frame(newWin)
         moveFrame.grid(row=3)
@@ -380,7 +449,7 @@ class displayClass:
             
 
             skillName = x.name
-            w0 = tk.Button(moveFrame, font=(selectedFont,sizeFont),text=skillName,command = lambda p=player,y=skillName : self.windowTarget(p,y))    
+            w0 = tk.Button(moveFrame, font=(selectedFont,sizeFont),text=self.rcd(skillName),command = lambda p=player,y=skillName : self.windowTarget(p,y))    
             w0.grid(column=cc,row=rc)
             cc += 1
             if cc >= movesPerRow:

@@ -14,8 +14,8 @@ class Gen:
         self.poolItem = {}
         self.poolName = {}
         self.list = {}
-        self.statsPlus = {"DAMAGE":0.5, "SPEED":0.6}
-        self.statsMinus = {"DAMAGE":0.5, "SPEED":0.6}
+        self.statsPlus = {}
+        self.statsMinus = {}
         self.typePlus = {}
         self.typeMinus = {}
         self.typeResist = {}
@@ -26,6 +26,7 @@ class Gen:
         self.moveName = {}
         self.madeMoves = {}
         self.artWords = {}
+        self.matched = {}
         
 
     
@@ -95,6 +96,7 @@ class Gen:
         l2 = {}
         poolName = {}
         poolItem = {}
+        matched = {}
         for (k,v) in listGive.items():
             l2[k.upper()] = v   
 
@@ -107,13 +109,18 @@ class Gen:
             for row in v:
                 if row in l2:
                     poolName[row] = l2[row]
+                    if (row not in matched):
+                        matched[row] = []
+                    matched[row].append(k)
                     if k in poolItem:
                         poolItem[k] = poolItem[k]+l2[row]
                     else:
                         poolItem[k] = l2[row]
-        
+                    
         self.poolItem = poolItem
         self.poolName = poolName
+        self.matched = matched
+        return matched
         #print(self.poolItem)
         #print(self.poolName)
 
@@ -122,6 +129,15 @@ class Gen:
     def splitPool(self):
         self.statsPlus = {}
         self.statsMinus = {}
+        bonusStats0 = {"DAMAGE":1,"SPEED":1,"DODGE":1,"ACCURACY":1,"ARMOR":1,"HEAL":1,"LIFESTEAL":1,"MAXHEALTH":1,"CRIT":1}
+        
+        bonusStats1 = {"DAMAGE":1,"SPEED":1,"DODGE":1,"ACCURACY":1,"MAXHEALTH":1}
+        for x in range(3):
+            s0 = self.randomWeightDict(bonusStats0)
+            self.statsPlus[s0] = random.randint(10,15)
+            s1 = self.randomWeightDict(bonusStats1)
+            self.statsMinus[s1] = random.randint(10,15)
+        
         for key, value in self.poolItem.items():
             if key.startswith("STATPLUS"):
                 s = key.replace("STATPLUS", "")
@@ -141,12 +157,20 @@ class Gen:
             elif key.startswith("RACE"):
                 s = key.replace("RACE", "")
                 self.myRaces[s] = value
+                self.totalMech["STRONGVS{0}".format(s)] = value
             elif key.startswith("STRONGVS"):
                 #s = key.replace("STRONGVS", "")
                 self.totalMech[key] = value
             elif key.startswith("MECH"):
                 #s = key.replace("STRONGVS", "")
                 self.totalMech[key] = value
+
+        for key,value in self.statsPlus.items():
+            while (self.statsPlus[key] < 10):
+                self.statsPlus[key] *= 10
+        for key,value in self.statsMinus.items():
+            while (self.statsMinus[key] < 10):
+                self.statsMinus[key] *= 10
 
     def calcStats(self):
         retStats = self.statsPlus.copy()
@@ -157,11 +181,16 @@ class Gen:
             else:
                 retStats[key] = -(self.statsMinus[key])
         
+        bonusMult0 = {  "DAMAGE":0.8,"ARMOR":0.8,"HEAL":1.2,
+                        "LIFESTEAL":0.6,"MAXHEALTH":2,"CRITDAMAGE":2
+                        }
         for key, value in retStats.items():
             i = random.randint(50,60)
             while(abs(retStats[key])<10):
                 retStats[key] *= 10
             retStats[key] *= (1+(i/100))
+            if (key in bonusMult0):
+                retStats[key] *= bonusMult0[key]
             retStats[key] = round(retStats[key])
             if key == "MAXHEALTH":
                 retStats[key]+=100
@@ -172,7 +201,9 @@ class Gen:
         retStats = self.typePlus.copy()
         multN = 10
         for key, value in self.typeResist.items():
+            
             if key in retStats:
+                
                 retStats[key] = retStats[key] + self.typeResist[key]
             else:
                 retStats[key] = (self.typeResist[key]) 
@@ -182,6 +213,7 @@ class Gen:
             else:
                 retStats[key] = -(self.typeMinus[key])       
         for key, value in retStats.items():
+            self.addToName(self.columns[key])
             i = random.randint(10,20)
             while(abs(retStats[key])<10):
                 retStats[key] *= 10
@@ -205,6 +237,7 @@ class Gen:
     def calcRace(self):
         races = []
         for key, value in self.myRaces.items():
+            self.addToName(self.columns[key])
             races.append(key)
         return ','.join(races)
 
@@ -217,6 +250,7 @@ class Gen:
         st += "TYPEDAMAGE=" + json.dumps(self.calcType1()) + "\n"
         st += "TYPERACE=" + self.calcRace() + "\n"
         st += "MOVES=" + json.dumps(self.madeMoves) + "\n"
+        st += "MATCHED=" + json.dumps(self.matched) + "\n"
         st += "ENDHERO\n"
         return st
 
@@ -247,7 +281,7 @@ class Gen:
             damage -= random.randint(3,6)
         d = ""
         d+=str(damage)
-        bonusAttributesList = {}
+        bonusAttributesList = {"NONE":1}
         for k, v in self.moveMech.items():
             if (k.startswith("STATPLUS") or 
                 k.startswith("MECHBUFF") or 
@@ -315,7 +349,7 @@ class Gen:
             baseCt["LIFESTEAL"] = 1
 
         rt = {bType:[]}
-        myDoList = {"STAT":1}
+        myDoList = {"STAT":1,"SLEEP":0.1,"STUN":0.06}
         for (k,v) in self.totalMech.items():
             if ("SLEEP" in k):
                 myDoList["SLEEP"] = 1
@@ -324,6 +358,7 @@ class Gen:
 
 
         myDo = self.randomWeightDict(myDoList)
+        self.addToName(self.columns[myDo])
         if (myDo == "STAT"):
             rt[bType].append("DO=STAT")
             
@@ -402,7 +437,7 @@ class Gen:
                 self.moveMech[c] = self.totalMech[c]
 
         rt = "DO="
-        myDoChoices = {"DAMAGE":1,"BUFF":0.3,"DEBUFF":0.4,"HEAL":0.3}
+        myDoChoices = {"DAMAGE":0.7,"BUFF":0.3,"DEBUFF":0.4,"HEAL":0.3}
         myDo = self.randomWeightDict(myDoChoices)
         dc = {}
         if myDo == "DAMAGE":
@@ -437,7 +472,7 @@ class Gen:
         rt += "NAME="
         
 
-        nl = random.randint(1,4)
+        
 
         moveNumberWeights = {"2":1,"3":0.9}
         moveNumberChoose = self.randomWeightDict(moveNumberWeights)
@@ -448,6 +483,7 @@ class Gen:
         needName = True
         while(needName):
             tempName = ""
+            nl = random.randint(1,4)
             for x in range(0,nl):
                 newRc = random.choice(self.moveName)
                 if (newRc not in tempName):
@@ -470,7 +506,7 @@ class Gen:
     def totalChar(self):
         self.madeMoves = {}
         rt = ""
-        moveNumberWeights = {"3":1,"4":0.9,"5":0.8,"6":0.7}
+        moveNumberWeights = {"6":1}
         moveNumberChoose = self.randomWeightDict(moveNumberWeights)
         for x in range(int(moveNumberChoose)):
             rt += self.strMove()
@@ -484,11 +520,11 @@ class Gen:
             f.write(self.totalChar())
 
     def calc(self,d):
-        
-        
-        self.listToPool(d)
+        match = self.listToPool(d)
+        return match
         #print(self.poolName)
-        self.splitPool()
+    
+       # self.splitPool()
 
 #def main():
     
