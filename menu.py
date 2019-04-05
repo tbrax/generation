@@ -33,17 +33,24 @@ class Menu:
         if (art != ""):
             newTf = tf()
             newTf.computeText(art)
-            self.loadWiki.append(newTf)
+            
+            if (newTf.loaded == "LOADED"):
+                self.loadWiki.append(newTf)
+            elif (newTf.loaded == "DISAMBIG"):
+                if self.display != 0:
+                    self.display.disWindow(newTf.options)
+
         #self.genHero()
 
     def genHero(self):
-        
+        #print("g0")
         t4 = {}
         for t in self.loadWiki:
             # t = self.loadWiki[0]  
             t3 = sorted(t.t2, key=t.t2.get, reverse=True)[:self.numWords] 
             for x in t3:
                 t4[x] = t.t2[x]
+        #print("g1")
         #print(t4)
         #t3 = heapq.nlargest(10, t.t2, key=t.t2.get)
         #d = {"POwerful":1,"mightY":1.7, "ziPpy":2,"burn":0.5,"cold":0.7,"man":1,"vampire":2}
@@ -53,15 +60,22 @@ class Menu:
             if idx != 0:
                 n+="-"
             n+= x.name
+        #print("g2")
         ga.name = n
         ga.loadKeyWords()
         self.matched = ga.calc(t4)
-        
+        #print("g3")
 
         ga.splitPool()
+        #print("g4")
         ga.writeChar()
+        #print("g5")
+        self.searchFiles()
+        #print("g6")
+        
 
     def searchFiles(self):
+        self.savedHeros = []
         for filename in os.listdir("moveFolder"):
             try:
                 self.loadFromFile("moveFolder\\" + filename)

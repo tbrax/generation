@@ -13,6 +13,8 @@ class tf:
         self.t2 = {}
         self.links = []
         self.name = ""
+        self.loaded = "NONE"
+        self.options = []
 
     def cleanText(self,text):
         rtext = text
@@ -26,6 +28,7 @@ class tf:
             if filename == (fname+".txt"):
                 #print("Document already exists")
                 found = 1
+                self.loaded = "LOADED"
                 return True
         if found == 0:
             try:
@@ -39,10 +42,13 @@ class tf:
                         f.write(addS)
                 with open("summary\\"+fname + ".txt", "w", encoding="utf-8") as f:
                     f.write(wka.summary)
+                self.loaded = "LOADED"
                 return True
 
             except wikipedia.exceptions.DisambiguationError as e:
-                print(e.options)
+                #print(e.options)
+                self.options = e.options
+                self.loaded = "DISAMBIG"
                 return False
 
 
@@ -75,7 +81,8 @@ class tf:
                 textList[x] = 0.0
         return textList
 
-    def getLinks(self,text,topList):
+    def getLinks(self,topList):
+        text = self.name
         f = self.loadFile(self.linksName+"\\"+str(text)+".txt").lower()
         fList = f.split("|")
         links = []

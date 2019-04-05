@@ -13,7 +13,7 @@ class Gen:
         self.keywords = {}
         self.poolItem = {}
         self.poolName = {}
-        self.list = {}
+        #self.list = {}
         self.statsPlus = {}
         self.statsMinus = {}
         self.typePlus = {}
@@ -198,7 +198,8 @@ class Gen:
         return retStats
 
     def calcType0(self):
-        retStats = self.typePlus.copy()
+        #retStats = self.typePlus.copy()
+        retStats = {}
         multN = 10
         for key, value in self.typeResist.items():
             

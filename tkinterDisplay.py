@@ -380,6 +380,17 @@ class displayClass:
         self.wikiFrame.destroy()
         self.windowWiki()
 
+    def disWindow(self,opts):
+        newWin = tk.Toplevel(self.root)
+        newWin.grid()
+        t = tk.Label(newWin, text="The page entered was a disambiguation page. Real articles are:",font=(selectedFont,sizeFont))
+        t.grid(column=0,row=0)
+        tx1 = ""
+        for x in opts:
+            tx1 += "{0}, ".format(x)
+        t = tk.Message(newWin,text=tx1, font=(selectedFont,sizeFont2))
+        t.grid(column=0,row=1)
+
     def windowArticle(self,a):
         newWin = tk.Toplevel(self.root)
         newWin.grid()
@@ -392,8 +403,19 @@ class displayClass:
         for k in tx0:
             tx1 += "{0} ".format(k)
 
-        t = tk.Message(newWin,text=tx1, font=(selectedFont,sizeFont2))
+        t = tk.Label(newWin, text="Keywords",font=(selectedFont,sizeFont))
         t.grid(column=0,row=1)
+        t = tk.Message(newWin,text=tx1, font=(selectedFont,sizeFont2))
+        t.grid(column=0,row=2)
+        t = tk.Label(newWin, text="No keywords matched? Try these top links",font=(selectedFont,sizeFont))
+        t.grid(column=0,row=3)
+
+        tx1 = ""
+        for k in a.getLinks(tx0):
+            tx1 += "{0} ".format(k)
+
+        t = tk.Message(newWin,text=tx1,width=70, font=(selectedFont,sizeFont2))
+        t.grid(column=0,row=4)
 
 
     def windowWiki(self):
@@ -402,7 +424,7 @@ class displayClass:
         self.wikiFrame = newWin
         wkFrame = tk.Frame(newWin)
         wkFrame.grid(row=0,column=0)
-        t = tk.Text(wkFrame, height=1, width=30,font=(selectedFont,sizeFont))
+        t = tk.Text(wkFrame, height=1, width=50,font=(selectedFont,sizeFont))
         t.grid(column=0,row=0)
         w0 = tk.Button(wkFrame, font=(selectedFont,sizeFont),text="Load Article",command = lambda t=t :self.loadArticle(t))    
         w0.grid(column=0,row=1)
@@ -429,7 +451,7 @@ class displayClass:
         tx = self.menu.matched
         #for k,v in self.menu.matched.items():
         #    tx += "{0}-{1},".format(k,v)
-        t = tk.Message(newWin,text=tx, font=(selectedFont,sizeFont3))
+        t = tk.Message(newWin,text=tx,width=60, font=(selectedFont,sizeFont3))
         t.grid(column=0,row=6)
 
 
@@ -444,7 +466,7 @@ class displayClass:
         for x in suggList:
             other += x + ", "
 
-        w0 = tk.Text(newWin,height=5, width=30, font=(selectedFont,sizeFont),text=other.format(less))
+        w0 = tk.Text(newWin,height=5, width=40, font=(selectedFont,sizeFont),text=other.format(less))
         w0.grid(row=1)
 
     def windowPlayer(self,player):
