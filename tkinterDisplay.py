@@ -1,8 +1,10 @@
 import tkinter as tk
+import json
 selectedFont = "Courier"
 sizeFont = 20 
 
 sizeFont2 = 15
+sizeFont3 = 9
 
 class displayClass:
     def __init__(self,g,m):
@@ -378,6 +380,22 @@ class displayClass:
         self.wikiFrame.destroy()
         self.windowWiki()
 
+    def windowArticle(self,a):
+        newWin = tk.Toplevel(self.root)
+        newWin.grid()
+        t = tk.Label(newWin, text=a.name,font=(selectedFont,sizeFont))
+        t.grid(column=0,row=0)
+
+
+        tx0 = sorted(a.t2, key=a.t2.get, reverse=True)[:self.menu.numWords] 
+        tx1 = ""
+        for k in tx0:
+            tx1 += "{0} ".format(k)
+
+        t = tk.Message(newWin,text=tx1, font=(selectedFont,sizeFont2))
+        t.grid(column=0,row=1)
+
+
     def windowWiki(self):
         newWin = tk.Toplevel(self.root)
         newWin.grid()
@@ -396,12 +414,22 @@ class displayClass:
         loadFrame = tk.Frame(newWin)
         loadFrame.grid(row=4,column=0)
         for idx,x in enumerate(self.menu.loadWiki):
-            w0 = tk.Label(loadFrame, font=(selectedFont,sizeFont),text=x.name)
-            w0.grid(column=0,row=idx)
+            eFrame = tk.Frame(loadFrame)
+            eFrame.grid(column=0,row=idx)
+            w0 = tk.Label(eFrame, font=(selectedFont,sizeFont),text=x.name)
+            w0.grid(column=0,row=0)
+
+            w0 = tk.Button(eFrame, font=(selectedFont,sizeFont),text="Scores",command = lambda x=x : self.windowArticle(x))    
+            w0.grid(column=1,row=0)
 
         w0 = tk.Label(newWin, font=(selectedFont,sizeFont),text="Matched KeyWords:")
         w0.grid(row=5)
-        t = tk.Text(newWin, height=1, width=30,font=(selectedFont,sizeFont))
+        #tx = json.dumps(self.menu.matched)
+        #print(self.menu.matched)
+        tx = self.menu.matched
+        #for k,v in self.menu.matched.items():
+        #    tx += "{0}-{1},".format(k,v)
+        t = tk.Message(newWin,text=tx, font=(selectedFont,sizeFont3))
         t.grid(column=0,row=6)
 
 

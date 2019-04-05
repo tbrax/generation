@@ -18,6 +18,8 @@ class Menu:
         self.loadWiki = []
         self.menuSetup()
         self.display = 0
+        self.matched = {}
+        self.numWords = 20
         
 
 
@@ -28,32 +30,33 @@ class Menu:
             self.queuePlayers.append(e)
 
     def loadArticle(self,art):
-        newTf = tf()
-        newTf.computeText(art)
-        self.loadWiki.append(newTf)
+        if (art != ""):
+            newTf = tf()
+            newTf.computeText(art)
+            self.loadWiki.append(newTf)
         #self.genHero()
 
     def genHero(self):
-        numWords = 20
+        
         t4 = {}
         for t in self.loadWiki:
             # t = self.loadWiki[0]  
-            t3 = sorted(t.t2, key=t.t2.get, reverse=True)[:numWords] 
+            t3 = sorted(t.t2, key=t.t2.get, reverse=True)[:self.numWords] 
             for x in t3:
                 t4[x] = t.t2[x]
-
-        print(t4)
+        #print(t4)
         #t3 = heapq.nlargest(10, t.t2, key=t.t2.get)
         #d = {"POwerful":1,"mightY":1.7, "ziPpy":2,"burn":0.5,"cold":0.7,"man":1,"vampire":2}
         ga = Gen()
-        ga.name = self.loadWiki[0].name
+        n = ""
+        for idx,x in enumerate(self.loadWiki):
+            if idx != 0:
+                n+="-"
+            n+= x.name
+        ga.name = n
         ga.loadKeyWords()
-        matchNum = ga.calc(t4)
-
-        lessNum = 5
-        if len(matchNum) < lessNum:
-            if self.display != 0:
-                self.display.warnFewKeyWords(matchNum,lessNum,t.links)
+        self.matched = ga.calc(t4)
+        
 
         ga.splitPool()
         ga.writeChar()

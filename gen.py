@@ -301,7 +301,7 @@ class Gen:
                 stt = bonusAttributes.replace("MECHBUFF","")
                 bonusTx += "+"+str(r)+"*USER"+stt
             elif bonusAttributes.startswith("STRONGVS"):
-                r = float(random.randint(50,200)/100)
+                r = float(random.randint(50,200)/10)
                 stt = bonusAttributes.replace("STRONGVS","")
                 bonusTx += "+"+str(r)+"*TARRACE["+stt+"]"
 
