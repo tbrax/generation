@@ -414,7 +414,7 @@ class displayClass:
         for k in a.getLinks(tx0):
             tx1 += "{0} ".format(k)
 
-        t = tk.Message(newWin,text=tx1,width=70, font=(selectedFont,sizeFont2))
+        t = tk.Message(newWin,text=tx1,width=1000, font=(selectedFont,sizeFont2))
         t.grid(column=0,row=4)
 
 
@@ -451,7 +451,7 @@ class displayClass:
         tx = self.menu.matched
         #for k,v in self.menu.matched.items():
         #    tx += "{0}-{1},".format(k,v)
-        t = tk.Message(newWin,text=tx,width=60, font=(selectedFont,sizeFont3))
+        t = tk.Message(newWin,text=tx,width=1000, font=(selectedFont,sizeFont3))
         t.grid(column=0,row=6)
 
 

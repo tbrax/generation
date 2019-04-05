@@ -1,0 +1,3 @@
+TYPEPLUSFIRE,TYPEMINUSCOLD,TYPEPLUSELECTRIC
+burn,cold,sparky
+heat,ice,electric

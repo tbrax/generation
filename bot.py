@@ -3,7 +3,8 @@ import discord
 import time
 from game import Game
 client = discord.Client()
-TOKEN = 'NDE5NjQyNDUwMzY2NDMxMjMy.DzaJjA.x-iJZpWf7b-CSAo1muqPFu0I44Y'
+#Token not current
+TOKEN = 'token goes here'
 
 Mchannel = None
 

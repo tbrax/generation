@@ -1,0 +1,3 @@
+STATPLUSDAMAGE,STATPLUSSPEED
+powerful,quick
+mighty,zippy

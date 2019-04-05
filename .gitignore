@@ -1,3 +1,6 @@
-articles/
-links/
-summary/
+articles/*
+links/*
+summary/*
+!articles/.gitkeep.txt
+!articles/.gitkeep.txt
+!articles/.gitkeep.txt
