@@ -1,0 +1,14 @@
+RACEHUMAN,STRONGVSHUMAN,RACEBEAST,STRONGVSBEAST,RACEUNDEAD,STRONGVSUNDEAD,RACESUPERNATURAL,STRONGVSSUPERNATURAL,RACESEACREATURE,STRONGVSSEACREATURE,RACELEADER,STRONGVSLEADER,RACEFOOD,STRONGVSFOOD,RACEPLACE,STRONGVSPLACE,RACEITEM,STRONGVSITEM,RACEINSTRUMENT,STRONGVSINSTRUMENT,RACEPLANT,STRONGVSPLANT
+man,RACESUPERNATURAL+,mammal,hunter,zombie,paladin,RACEUNDEAD+,science,fish,fisherman,leader,scandal,sweet,,building,,tool,,guitar,,plant,lawnmower
+woman,,beast,man,ghoul,,imp,scientist,mermaid,spear,general,corruption,salty,,city,,utensil,,keyboard,,flower,RACEITEM+
+dude,,bird,,vampire,,witch,reality,whale,pole,major,,cake,,country,,supplies,,piano,,leaf,
+fellow,,herbivore,,ghost,,werewolf,,shark,net,judge,,dish,,,,saw,,flute,,plantae,
+human,,carnivore,,,,goblin,,,shark,,,taco,,,,ball,,drum,,tree,
+,,insect,,,,demon,,,,,,steak,,,,electronic,,trumpet,,fern,
+,,reptile,,,,kelpie,,,,,,cheese,,,,item,,tube,,moss,
+,,RACESEACREATURE+,,,,yeti,,,,,,milk,,,,plastic,,instrument,,shrub,
+,,species,,,,,,,,,,burger,,,,paper,,radio,,wood,
+,,marsupial,,,,,,,,,,fries,,,,metal,,microphone,,seed,
+,,,,,,,,,,,,salt,,,,steel,,boombox,,wheat,
+,,,,,,,,,,,,,,,,can,,,,weed,
+,,,,,,,,,,,,,,,,,,,,ivy,
