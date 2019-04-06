@@ -178,7 +178,10 @@ class Hero:
         return self.level * 5
 
     def textHealth(self):
-        giveStr = "{0} / {1} health".format(self.stats["HEALTH"],self.stats["MAXHEALTH"])
+
+        h0 = round(self.stats["HEALTH"],1)
+        h1 = round(self.stats["MAXHEALTH"],1)
+        giveStr = "{0} / {1} health".format(h0,h1)
         return giveStr
         
     def parseType(self,target,source,damageType):
@@ -264,11 +267,16 @@ class Hero:
             metaData["baseCrit"] = "0"
         if "bonusCrit" not in metaData:
             metaData["bonusCrit"] = "0"
+
         amt = self.parseNum(target,self,amt)
-        amt = float(amt) * float((100+self.stats["DAMAGE"])/100)
+
+        
         damageTypeC = self.parseType(target,self,damageType)
         amt = amt * float(max(((100+self.typeDamage[damageTypeC])/100),0))
         dc = self.doesCrit(target,metaData["baseCrit"])
+        if amt > 0:
+            amt = float(amt) * float((100+self.stats["DAMAGE"])/100)
+
         target.takeDamage(self,amt,damageTypeC,dc,metaData)
         self.ownerGame.gameAction("DEALDAMAGE",self,target)
 
@@ -294,25 +302,27 @@ class Hero:
         self.ownerGame.gameAction("DEALHEAL",self,target)
 
     def takeHeal(self,amt,crit):
-        self.stats["HEALTH"] += amt * (1+(self.stats["HEAL"]/100))
-        if self.stats["HEALTH"] > self.stats["MAXHEALTH"]:
-            self.stats["HEALTH"] = self.stats["MAXHEALTH"]
-
-        if crit:
-            giveStr = "{0} critical heals for {1}".format(self.getDisplayName(),amt)
-        else:
-            giveStr = "{0} heals for {1}".format(self.getDisplayName(),amt)
-            #self.ownerGame.addMessage({giveStr})
-        self.ownerGame.addMessageQ(giveStr,0)
-        self.ownerGame.gameAction("TAKEHEAL",self,self)
+        if amt < 0:
+            self.stats["HEALTH"] -= amt * (1+(self.stats["HEAL"]/100))
+            if self.stats["HEALTH"] > self.stats["MAXHEALTH"]:
+                self.stats["HEALTH"] = self.stats["MAXHEALTH"]
+            showAmt = -round(amt,1)
+            if crit:
+                giveStr = "{0} critical heals for {1}".format(self.getDisplayName(),showAmt)
+            else:
+                giveStr = "{0} heals for {1}".format(self.getDisplayName(),showAmt)
+                #self.ownerGame.addMessage({giveStr})
+            self.ownerGame.addMessageQ(giveStr,0)
+            self.ownerGame.gameAction("TAKEHEAL",self,self)
 
     def takeDamage(self,source,amt,damageType,crit,metaData = {}):
         calcAmt = self.parseNum(self,source,amt)
         damT = self.parseType(self,source,damageType)
         if crit:
             calcAmt = calcAmt + self.calcCrit(source,amt,metaData)
+        if calcAmt > 0:
+            calcAmt = float(calcAmt) * float((100-self.typeResist[damT])/100)
 
-        calcAmt = float(calcAmt) * float((100-self.typeResist[damT])/100)
         if calcAmt > 0:
             calcAmt = self.armorCalc(source,calcAmt)
             self.stats["HEALTH"] = self.stats["HEALTH"] - calcAmt

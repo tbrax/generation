@@ -82,7 +82,7 @@ class Buff:
         if self.activate in action:
             self.doTrigger()
         if self.do == "SLEEP":
-            print(action)
+
             if (action == "SELFALLYTAKEDAMAGE"):
                 self.endBuff()
 

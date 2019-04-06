@@ -10,7 +10,6 @@ class Move:
         self.loaded = 0
         self.desc = ""
         
-
     def loadFromFile(self,f):
         file = open(f, "r") 
         found = 0
@@ -60,7 +59,16 @@ class Move:
                 print("Error loading file " + filename)
         
     def describe(self):
-        return "Move"
+        d = self.desc
+        #for x in self.orderList:
+        #    if "do" in x.metaInfo:
+        #        if x.metaInfo["do"] == "USEMOVE":
+        #            t = x.type
+        #           for y in self.metaMoves:
+        #                if y.name == t:
+        #                    d+= y.describe()
+                    
+        return d
 
     def createMove(self):    
         self.searchFiles()

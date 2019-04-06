@@ -19,7 +19,7 @@ class Menu:
         self.menuSetup()
         self.display = 0
         self.matched = {}
-        self.numWords = 20
+        self.numWords = 30
         
 
 
@@ -41,6 +41,9 @@ class Menu:
                     self.display.disWindow(newTf.options)
 
         #self.genHero()
+    def clearHero(self):
+        self.matched = {}
+        self.loadWiki = []
 
     def genHero(self):
         #print("g0")

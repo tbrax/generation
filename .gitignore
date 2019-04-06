@@ -1,6 +1,8 @@
 articles/*
 links/*
 summary/*
-!articles/.gitkeep.txt
-!articles/.gitkeep.txt
-!articles/.gitkeep.txt
+moveFolder/*
+!articles/gitkeep.txt
+!links/gitkeep.txt
+!summary/gitkeep.txt
+!summary/gitkeep.txt

@@ -267,7 +267,8 @@ class displayClass:
         w0.grid(row=0)
         w0 = tk.Label(newWin, font=(selectedFont,sizeFont),text=self.rcd(skillName))
         w0.grid(row=1)
-        w0 = tk.Label(newWin, font=(selectedFont,sizeFont),text=self.rcd(player.getMoveByName(skillName).desc))
+        de = self.rcd(player.getMoveByName(skillName).describe()).replace("|","\n")
+        w0 = tk.Message(newWin, width=700,font=(selectedFont,sizeFont),text=de)
         w0.grid(row=2)
 
         
@@ -376,6 +377,10 @@ class displayClass:
         self.menu.genHero()
         self.resetWiki()
 
+    def clearHero(self):
+        self.menu.clearHero()
+        self.resetWiki()
+
     def resetWiki(self):
         self.wikiFrame.destroy()
         self.windowWiki()
@@ -430,11 +435,13 @@ class displayClass:
         w0.grid(column=0,row=1)
         w0 = tk.Button(wkFrame, font=(selectedFont,sizeFont),text="Make Character",command = lambda :self.loadHero())    
         w0.grid(column=0,row=2)
+        w0 = tk.Button(wkFrame, font=(selectedFont,sizeFont),text="Clear Character",command = lambda :self.clearHero())    
+        w0.grid(column=0,row=3)
 
         w0 = tk.Label(wkFrame, font=(selectedFont,sizeFont),text="Loaded Articles:")
-        w0.grid(row=3)
+        w0.grid(row=4)
         loadFrame = tk.Frame(newWin)
-        loadFrame.grid(row=4,column=0)
+        loadFrame.grid(row=5,column=0)
         for idx,x in enumerate(self.menu.loadWiki):
             eFrame = tk.Frame(loadFrame)
             eFrame.grid(column=0,row=idx)
@@ -445,14 +452,14 @@ class displayClass:
             w0.grid(column=1,row=0)
 
         w0 = tk.Label(newWin, font=(selectedFont,sizeFont),text="Matched KeyWords:")
-        w0.grid(row=5)
+        w0.grid(row=6)
         #tx = json.dumps(self.menu.matched)
         #print(self.menu.matched)
         tx = self.menu.matched
         #for k,v in self.menu.matched.items():
         #    tx += "{0}-{1},".format(k,v)
         t = tk.Message(newWin,text=tx,width=1000, font=(selectedFont,sizeFont3))
-        t.grid(column=0,row=6)
+        t.grid(column=0,row=7)
 
 
         
@@ -466,7 +473,7 @@ class displayClass:
         for x in suggList:
             other += x + ", "
 
-        w0 = tk.Text(newWin,height=5, width=40, font=(selectedFont,sizeFont),text=other.format(less))
+        w0 = tk.Text(newWin,height=5, width=700, font=(selectedFont,sizeFont),text=other.format(less))
         w0.grid(row=1)
 
     def windowPlayer(self,player):
