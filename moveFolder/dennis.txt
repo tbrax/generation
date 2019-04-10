@@ -1,13 +1,13 @@
 STARTHERO
 NAME=Dennis
-MOVES={"Pounce": 1, "Blind Swipe": 1, "Open Wound": 1,"Side Swipe": 1,"Critical Lunge": 1, "Speed Strike": 1, "Half Hit": 1}
-STATS={"DAMAGE": 5, "SPEED": 7}
+MOVES={"Punch": 1, "Blind Swipe": 1, "Open Wound": 1,"Side Swipe": 1,"Critical Lunge": 1, "Speed Strike": 1, "Half Hit": 1}
+STATS={"DAMAGE": 0, "SPEED": 7}
 TYPERACE=Human
 ENDHERO
 
 STARTMOVE
 NAME=Punch
 DESC=A punch
-DO={"DAMAGE": ["TYPE=Crush", "AMT=20","TARGET=SELECTED","CRIT=0","CRITBONUS=0"], "TRIGGER": ["HIT=90"]}
+DO={"DAMAGE": ["TYPE=Crush", "AMT=20+RANDOM[8]","TARGET=SELECTED","CRIT=0","CRITBONUS=0"], "TRIGGER": ["HIT=90"]}
 ENDMOVE
 

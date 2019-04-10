@@ -287,7 +287,7 @@ class Gen:
         d+=str(damage)
         self.addToDesc("{0} ".format(d))
 
-        bonusAttributesList = {"NONE":1}
+        bonusAttributesList = {"NONE":1,"AMTRANDOM":0.1,"AMTTURN":0.06}
         for k, v in self.moveMech.items():
             if (k.startswith("STATPLUS") or 
                 k.startswith("MECHBUFF") or 
@@ -299,22 +299,58 @@ class Gen:
         if bonusAttributes != False:
             self.addToName(self.columns[bonusAttributes])
             if bonusAttributes.startswith("STATPLUS"):
-                r = float(random.randint(50,200)/100)
                 stt = bonusAttributes.replace("STATPLUS","")
+                r = float(random.randint(30,100)/100)
+                if (stt in self.bonusMult0):
+                    stt *= 1/self.bonusMult0[stt]
                 bonusTx += "+"+str(r)+"*USER"+stt
                 self.addToDesc("plus {0} * the user's {1} ".format(r,stt))
 
             elif bonusAttributes.startswith("MECHBUFF"):
-                r = float(random.randint(50,200)/100)
                 stt = bonusAttributes.replace("MECHBUFF","")
+                r = float(random.randint(30,100)/100)
+                if (stt in self.bonusMult0):
+                    stt *= 1/self.bonusMult0[stt]
                 bonusTx += "+"+str(r)+"*USER"+stt
                 self.addToDesc("plus {0} * the user's {1} ".format(r,stt))
 
             elif bonusAttributes.startswith("STRONGVS"):
-                r = float(random.randint(50,200)/10)
+                r = float(random.randint(50,150)/10)
                 stt = bonusAttributes.replace("STRONGVS","")
                 bonusTx += "+"+str(r)+"*TARRACE["+stt+"]"
                 self.addToDesc("plus {0} if the target is a {1} ".format(r,stt))
+
+            elif bonusAttributes.startswith("AMTRANDOM"):
+                r = random.randint(0,15)
+                bonusTx += "+RANDOM[{0}]".format(r)
+                self.addToDesc("plus a random amount from 0 to {0} ".format(r))
+
+            elif bonusAttributes.startswith("AMTTURN"):
+                r = float(random.randint(50,90)/100)
+                bonusTx += "+{0}*TURN".format(r)
+                self.addToDesc("plus {0} *  the current game round".format(r))
+
+            elif bonusAttributes.startswith("AMTUSERLOW"):
+                r = random.randint(0,10)
+                bonusTx += "+{0}*USERHEALTHLOW".format(r)
+                self.addToDesc("plus up to {0}, depending on how low the user's health is ".format(r))
+
+            elif bonusAttributes.startswith("AMTUSERHIGH"):
+                r = random.randint(0,10)
+                bonusTx += "+{0}*USERHEALTHHIGH".format(r)
+                self.addToDesc("plus up to {0}, depending on how high the user's health is ".format(r))
+
+            elif bonusAttributes.startswith("AMTTARGETLOW"):
+                r = random.randint(0,10)
+                bonusTx += "+{0}*TARHEALTHLOW".format(r)
+                self.addToDesc("plus up to {0}, depending on how low the targets's health is ".format(r))
+
+            elif bonusAttributes.startswith("AMTTARGETHIGH"):
+                r = random.randint(0,10)
+                bonusTx += "+{0}*TARHEALTHHIGH".format(r)
+                self.addToDesc("plus up to {0}, depending on how high the target's health is ".format(r))
+
+            
 
         d += bonusTx
 

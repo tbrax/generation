@@ -40,6 +40,7 @@ class Hero:
         self.myTurn = False
         self.lastTarget = []
         self.id = 0
+        self.typeSave = {"LASTDEAL":"CRUSH","LASTTAKE":"CRUSH"}
 
     def writeSelf(self):
         t = "STARTHERO\n"
@@ -58,6 +59,16 @@ class Hero:
             return float(strValue)
         
         s = strValue
+
+        ##############
+        rf = s.find("RANDOM")
+        if rf != -1:
+            myNum = ""
+            rCount = rf+7
+            while s[rCount] != "]" and rCount < len(s):
+                myNum += s[rCount]
+                rCount += 1
+            s = s[:rf] + str(random.randint(0,int(myNum))) + s[rCount+1:]
         ##############
         rf = s.find("TARRACE")
         if rf != -1:
@@ -86,11 +97,12 @@ class Hero:
 
 
         ####
-        s = s.replace("USERHEALTHPERCENT", str(source.stats["HEALTH"]/source.stats["MAXHEALTH"]*100))
-        s = s.replace("TARHEALTHPERCENT", str(target.stats["HEALTH"]/target.stats["MAXHEALTH"]*100))
-        s = s.replace("USERHEALTHPERCENT", str(source.stats["HEALTH"]/source.stats["MAXHEALTH"]*100))
-        s = s.replace("TARHEALTHPERCENT", str(target.stats["HEALTH"]/target.stats["MAXHEALTH"]*100))
+        s = s.replace("USERHEALTHHIGH", str(source.stats["HEALTH"]/source.stats["MAXHEALTH"]))
+        s = s.replace("TARHEALTHHIGH", str(target.stats["HEALTH"]/target.stats["MAXHEALTH"]))
+        s = s.replace("USERHEALTHLOW", str(1-(source.stats["HEALTH"]/source.stats["MAXHEALTH"])))
+        s = s.replace("TARHEALTHLOW", str(1-(target.stats["HEALTH"]/target.stats["MAXHEALTH"])))
         ######
+        s = s.replace("TURN", str(self.ownerGame.round))
         s = s.replace("USERHEALTH", str(source.stats["HEALTH"]))
         s = s.replace("TARHEALTH", str(target.stats["HEALTH"]))
         s = s.replace("USERMAXHEALTH", str(source.stats["MAXHEALTH"]))
@@ -185,6 +197,10 @@ class Hero:
         return giveStr
         
     def parseType(self,target,source,damageType):
+
+        if (damageType == "LASTDEAL" or damageType == "LASTTAKE"):
+            damageType = self.typeSave[damageType]
+
         if (damageType not in self.typeResist):
             self.typeResist[damageType] = 0
         if (damageType not in self.typeDamage):
@@ -276,7 +292,7 @@ class Hero:
         dc = self.doesCrit(target,metaData["baseCrit"])
         if amt > 0:
             amt = float(amt) * float((100+self.stats["DAMAGE"])/100)
-
+        self.typeSave["LASTDEAL"] = damageTypeC
         target.takeDamage(self,amt,damageTypeC,dc,metaData)
         self.ownerGame.gameAction("DEALDAMAGE",self,target)
 
@@ -326,6 +342,7 @@ class Hero:
         if calcAmt > 0:
             calcAmt = self.armorCalc(source,calcAmt)
             self.stats["HEALTH"] = self.stats["HEALTH"] - calcAmt
+            self.typeSave["LASTTAKE"] = damT
             showAmt = round(calcAmt,1)
             if crit:
                 giveStr = "{0} takes {1} critical {2} damage".format(self.getDisplayName(),showAmt,damageType.upper())

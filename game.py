@@ -27,9 +27,95 @@ class Game:
         self.turnCurrent = 0
         self.round = 0
         
+    def checkGeneralTrigger(self,key,value,user,target):
+        totalTrue = True
+        if key == "HIT":
+            s = user.parseNum(target,user,value)
+            tmpTrue = user.accCheck(target,s)
+            if tmpTrue == False:
+                totalTrue = False
+                user.ownerGame.gameAction("MISS",user,target)
+        elif key == "RANDOM":
+            s = user.parseNum(target,user,value)
+            if s < random.randint(0,101):
+                totalTrue = False
+        elif "#<#" in key:
+            k = key.replace("#<#","")
+            k0 = user.parseNum(target,user,k)
+            k1 = user.parseNum(target,user,value)
+            if not (k0<k1):
+                totalTrue = False
+        elif "#>#" in key:
+            k = key.replace("#>#","")
+            k0 = user.parseNum(target,user,k)
+            k1 = user.parseNum(target,user,value)
+            if not (k0>k1):
+                totalTrue = False
+        elif "#e#" in key:
+            k = key.replace("#e#","")
+            k0 = user.parseNum(target,user,k)
+            k1 = user.parseNum(target,user,value)
+            if not (k0==k1):
+                totalTrue = False
+        elif key == "PREV":
+            if user.triggerSave[-1] == False:
+                totalTrue = False
+        elif key == "PREVFALSE":
+            if user.triggerSave[-1] != False:
+                totalTrue = False
+        elif key == "ALLPREV":
+            for x in user.triggerSave:
+                if x == False:
+                    totalTrue = False
 
-    def loadAllHerosFromFiles(self):
-        print("Loading all valid heros")
+        return totalTrue
+
+    def selectTargets(self,tar,user,target):
+        totalTargets = []
+        if tar == "SELECTED":
+            totalTargets.append(target)
+        elif tar == "SELF":
+            totalTargets.append(user)
+        elif tar == "ALLALLY":
+            for x in user.getAllAlly():
+                totalTargets.append(x)
+        elif tar == "RANDOMALLY":
+            totalTargets.append(random.choice(user.getAllAlly()))
+        elif tar == "RANDOMOTHERALLY":
+            totalTargets.append(random.choice(user.getOtherAlly()))
+        elif tar == "RANDOMENEMY":
+            totalTargets.append(random.choice(user.getAllEnemy()))       
+        elif tar == "OTHERALLY":
+            for x in user.getOtherAlly():
+                totalTargets.append(x)
+        elif tar == "ALLENEMY":
+            for x in user.getAllEnemy():
+                totalTargets.append(x)
+        elif tar == "ALL":
+            for x in user.ownerGame.players:
+                for y in x:
+                    totalTargets.append(y)
+        elif tar == "ALLOTHER":
+            for x in user.ownerGame.players:
+                for y in x:
+                    if y != user:
+                        totalTargets.append(y)
+        elif tar == "TARGET":
+            for x in user.lastTarget:
+                totalTargets.append(x)
+        elif tar == "TARGETENEMY":
+            for x in target.getAllEnemy():
+                totalTargets.append(x)
+        elif tar == "TARGETALLY":
+            for x in target.getAllAlly():
+                totalTargets.append(x)
+        elif tar == "ALLNOTTARGET":
+            for x in user.ownerGame.players:
+                for y in x:
+                    if y != target:
+                        totalTargets.append(y)
+
+        return totalTargets
 
     def getPlayer(self,team,player):
         return self.players[team][player]
