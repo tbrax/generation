@@ -62,8 +62,6 @@ class MoveOrder:
             self.triggers[t0[0]] = t0[1]
 
 
-
-
     def load(self,data):
         for key, value in data.items():
             if key == "DAMAGE" or key == "HEAL":

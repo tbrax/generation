@@ -57,12 +57,8 @@ class Hero:
         check = baseAcc + self.stats["ACCURACY"] - target.stats["DODGE"]
         return check > i
 
-    def parseNum(self,target,source,strValue):
-        if isinstance(strValue, float) or isinstance(strValue, int) or strValue.isdigit():
-            return float(strValue)
-        
+    def parseComplex(self,target,source,strValue):
         s = strValue
-
         ##############
         rf = s.find("RANDOM")
         if rf != -1:
@@ -83,6 +79,19 @@ class Hero:
             rNum = "0"
             if target in source.ownerGame.selectTargets(target,source,myRace):
                 rNum = "1"
+            s = s[:rf] + rNum + s[rCount+1:]
+        ##############
+        rf = s.find("TARHASBUFF")
+        if rf != -1:
+            myRace = ""
+            rCount = rf+11
+            while s[rCount] != "]" and rCount < len(s):
+                myRace += s[rCount]
+                rCount += 1
+            rNum = "0"
+            for x in target.buffs:
+                if (x.name == myRace):
+                    rNum = "1"
             s = s[:rf] + rNum + s[rCount+1:]
         ##############
         rf = s.find("TARRACE")
@@ -109,8 +118,10 @@ class Hero:
                 rNum = "1"
             s = s[:rf] + rNum + s[rCount+1:]
         ####################
-
-
+        return s
+    
+    def parseReplace(self,target,source,strValue):
+        s = strValue
         ####
         s = s.replace("USERHEALTHHIGH", str(source.stats["HEALTH"]/source.stats["MAXHEALTH"]))
         s = s.replace("TARHEALTHHIGH", str(target.stats["HEALTH"]/target.stats["MAXHEALTH"]))
@@ -144,9 +155,21 @@ class Hero:
         s = s.replace("TARHEAL", str(target.stats["HEAL"]))
         s = s.replace("USERLIFESTEAL", str(source.stats["LIFESTEAL"]))
         s = s.replace("TARLIFESTEAL", str(target.stats["LIFESTEAL"]))
+        return s
 
-
-        f = eval(s) 
+    def parseNum(self,target,source,strValue):
+        if isinstance(strValue, float) or isinstance(strValue, int) or strValue.isdigit():
+            return float(strValue)
+        
+        s = strValue
+        s = self.parseComplex(target,source,s)
+        s = self.parseReplace(target,source,s)
+        f = 0
+        isSafe = True
+        if (len(s) > 1000):
+            isSafe = False
+        if (isSafe):
+            f = eval(s) 
 
         return float(f)
 
@@ -231,9 +254,10 @@ class Hero:
     def canFight(self):
         if self.life == "ALIVE":
             return True
-        elif self.life == "UNDEAD":
-            if self.stats["HEALTH"] > 0:
-                return True
+        elif self.life == "CORPSE":
+            for x in self.buffs:
+                if x.do == "UNDEAD":
+                    return True            
         return False
 
     def canUseMove(self):
@@ -248,11 +272,14 @@ class Hero:
 
     def die(self):
         self.ownerGame.gameAction("DIED",self,self)
-        self.life = "DEAD"
+        if (self.life == "ALIVE"):
+            self.stats["HEALTH"] = self.stats["MAXHEALTH"] * 0.3
+            self.life = "CORPSE"
+        elif (self.life == "CORPSE"):
+            self.life = "DEBRIS"
         
-    def checkHealth(self):
-        
-        if self.life == "ALIVE":
+    def checkHealth(self):   
+        if self.life == "ALIVE" or self.life == "CORPSE":
             if self.stats["HEALTH"] <= 0:
                 self.die()
 
@@ -297,10 +324,9 @@ class Hero:
         return i < n
 
     def doLifeSteal(self,target,amt,damageType):
-
         tam = amt*(self.stats["LIFESTEAL"]/100)
         if tam > 0:
-            self.takeHeal(tam,False)
+            self.takeHeal(-tam,False)
                 #takeHeal(self,amt,damageTypeC,dc,metaData)
 
     def dealDamage(self,target,amt,damageType, metaData = {}):
@@ -310,8 +336,7 @@ class Hero:
             metaData["bonusCrit"] = "0"
 
         amt = self.parseNum(target,self,amt)
-
-        
+   
         damageTypeC = self.parseType(target,self,damageType)
         amt = amt * float(max(((100+self.typeDamage[damageTypeC])/100),0))
         dc = self.doesCrit(target,metaData["baseCrit"])
@@ -414,6 +439,7 @@ class Hero:
             for x in self.metaMoves:
                 if x.name.upper() == moveName.upper():
                     x.use(self,target)
+        self.ownerGame.gameAction("FINISHMOVE",self,target)
             
 
     def playMsg(self,msg):
