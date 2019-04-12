@@ -51,8 +51,7 @@ class Hero:
         ##file = open("moveFolder\\" + filename, "w")
         t += "ENDHERO"
         return t
-
-        
+   
     def accCheck(self,target,baseAcc):
         i = random.randint(0,101)
         check = baseAcc + self.stats["ACCURACY"] - target.stats["DODGE"]
@@ -73,6 +72,18 @@ class Hero:
                 myNum += s[rCount]
                 rCount += 1
             s = s[:rf] + str(random.randint(0,int(myNum))) + s[rCount+1:]
+        ##############
+        rf = s.find("ISTAR")
+        if rf != -1:
+            myRace = ""
+            rCount = rf+6
+            while s[rCount] != "]" and rCount < len(s):
+                myRace += s[rCount]
+                rCount += 1
+            rNum = "0"
+            if target in source.ownerGame.selectTargets(target,source,myRace):
+                rNum = "1"
+            s = s[:rf] + rNum + s[rCount+1:]
         ##############
         rf = s.find("TARRACE")
         if rf != -1:

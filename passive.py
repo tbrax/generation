@@ -18,7 +18,9 @@ class Passive:
         self.desc = ""
         self.loaded = 0
         
-
+    def describe(self):
+        return self.desc
+        
     def addSelf(self):
         self.createPassive()
         self.source.passives.append(self)
@@ -29,7 +31,8 @@ class Passive:
             self.source.passives.remove(self)
 
     def updateRemove(self):
-        self.taken = []
+        self.statRemove()
+        
         self.targets = []
 
     def updateAdd(self):
@@ -39,14 +42,24 @@ class Passive:
             self.statAdd(x)
 
     def statAdd(self,p):
-        takenUser = []
-        for x in self.value:
-            v = self.source.parseNum(p,self.source,x)
-            takenUser.append(v)
-        self.taken.append(takenUser)
+        takenUser = {}
+        for k,v in self.value.items():
+            if (k in p.stats):
+                va = self.source.parseNum(p,self.source,v)
+                p.stats[k] += va
+                takenUser[k] = va
+        self.taken.append([p,takenUser])
+
+    def statRemove(self):
+        for x in self.taken:
+            for k,v in x[1].items():
+                if (k in x[0].stats):
+                    x[0].stats[k] -= v
+        self.taken = []
 
     def changeStat(self,p,value,stat):
-        print("Changing")
+        if (stat in p.stats):
+            p.stats[stat] += 1
 
 
     def update(self):
