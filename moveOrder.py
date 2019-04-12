@@ -2,11 +2,11 @@ from buff import Buff
 import random
 class MoveOrder:
     def __init__(self):
-        self.am = "DAMAGE"
-        self.type = "CRUSH"
+        self.am = "INVALID"
+        self.type = "INVALID"
         self.triggers = {}
         self.heldValue = 0
-        self.tar = "SELECTED"
+        self.tar = "INVALID"
 
         self.metaInfo = {}
 
@@ -29,6 +29,7 @@ class MoveOrder:
     def activateDo(self,user,target):
         if self.checkTriggers(user,target):
             if self.am == "DAMAGE" or self.am =="HEAL":
+                
                 user.dealDamage(target,self.heldValue,self.type,metaData = self.metaInfo)
             elif self.am == "BUFF" or self.am == "DEBUFF":
                 b = Buff(user,target,self.am)
@@ -72,7 +73,6 @@ class MoveOrder:
                         self.heldValue = x[4:]
                     elif x.startswith("TYPE="):
                         self.type = x[5:].upper()
-                        
                     elif x.startswith("TARGET="):
                         self.tar = x[7:]
                     elif x.startswith("CRIT="):

@@ -1,6 +1,7 @@
 from hero import Hero
 from move import Move
 from buff import Buff
+from passive import Passive
 import random
 
 class scrollText:
@@ -91,6 +92,7 @@ class Game:
         elif tar == "ALLENEMY":
             for x in user.getAllEnemy():
                 totalTargets.append(x)
+            
         elif tar == "ALL":
             for x in user.ownerGame.players:
                 for y in x:
@@ -225,7 +227,7 @@ class Game:
         self.gameActionText(action,source,target)
         for x in self.players:
             for y in x:
-                y.takeAction(target,action)
+                y.takeAction(action,source,target)
 
     def getPlayerTurn(self):
         return "getTurn not implemented"
@@ -284,7 +286,7 @@ class Game:
             if x.name == owner:
                 send += x.info()
 
-        self.addMessage(send)
+        self.addMessageQ(send,0)
 
     #def addMessage(self,msg):
        
@@ -316,11 +318,15 @@ class Game:
                 if x.name.upper() == owner.upper():
                     x.useMove(trueMove,x)
 
+    def loadPassive(self,name,user):
+        newPassive = Passive(user)
+        
+        return newPassive
 
     def loadMove(self,name):
         
-        newMove = Move()
-        newMove.name = name.upper()
+        newMove = Move(name)
+        #newMove.name = name.upper()
 
         newMove.createMove()
         if newMove.loaded != 2:
@@ -333,9 +339,9 @@ class Game:
         trueName = trueName.upper()
         newMove = self.loadMove(trueName)
         if newMove == 0:
-            self.addMessage("The move {0} does not exist".format(trueName))
+            self.addMessageQ("The move {0} does not exist".format(trueName),0)
         else:
-            self.addMessage(newMove.describe())
+            self.addMessageQ(newMove.describe(),0)
 
     def takeInput(self,textInput,owner):
         t = textInput.upper()

@@ -142,6 +142,13 @@ class Menu:
                     data  = json.loads(eventLine)
                     if isinstance(tp, Hero):
                         tp.loadStatsList(data)
+                elif line.startswith("PASSIVE="):
+                    eventLine =  line.replace("PASSIVE=","")
+                    eventLine = eventLine.strip('\n')
+                    eventLine = eventLine.strip('\t')
+                    data  = json.loads(eventLine)
+                    if isinstance(tp, Hero):
+                        tp.loadPassiveList(data)
                 elif line.startswith("TYPEDAMAGE="):
                     eventLine =  line.replace("TYPEDAMAGE=","")
                     eventLine = eventLine.strip('\n')

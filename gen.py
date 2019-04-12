@@ -32,8 +32,8 @@ class Gen:
         self.needMove = []
         self.bonusMult0 =   { 
                             "DAMAGE":0.8,"ARMOR":0.8,"HEAL":1.2,
-                            "LIFESTEAL":0.6,"MAXHEALTH":2,"CRITDAMAGE":2,
-                            "DODGE":0.5,"ACCURACY":0.6
+                            "LIFESTEAL":0.6,"MAXHEALTH":2.5,"CRITDAMAGE":2,
+                            "DODGE":0.5,"ACCURACY":0.5
                             }
         
 
@@ -302,7 +302,7 @@ class Gen:
                 stt = bonusAttributes.replace("STATPLUS","")
                 r = float(random.randint(30,100)/100)
                 if (stt in self.bonusMult0):
-                    stt *= 1/self.bonusMult0[stt]
+                    r *= (1/self.bonusMult0[stt])
                 bonusTx += "+"+str(r)+"*USER"+stt
                 self.addToDesc("plus {0} * the user's {1} ".format(r,stt))
 
@@ -310,7 +310,7 @@ class Gen:
                 stt = bonusAttributes.replace("MECHBUFF","")
                 r = float(random.randint(30,100)/100)
                 if (stt in self.bonusMult0):
-                    stt *= 1/self.bonusMult0[stt]
+                    r *= 1/self.bonusMult0[stt]
                 bonusTx += "+"+str(r)+"*USER"+stt
                 self.addToDesc("plus {0} * the user's {1} ".format(r,stt))
 

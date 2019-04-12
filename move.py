@@ -4,8 +4,8 @@ import os
 from moveOrder import MoveOrder 
 
 class Move:
-    def __init__(self):
-        self.name = "Punch"
+    def __init__(self,name):
+        self.name = name
         self.orderList = []
         self.loaded = 0
         self.desc = ""
@@ -14,8 +14,7 @@ class Move:
         file = open(f, "r") 
         found = 0
         state = 0
-        for line in file:
-            
+        for line in file:  
             if state == 1:
                 if line.startswith("NAME="): 
                     

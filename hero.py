@@ -1,4 +1,5 @@
 from move import Move
+from passive import Passive
 import random
 from math import *
 import re
@@ -41,6 +42,9 @@ class Hero:
         self.lastTarget = []
         self.id = 0
         self.typeSave = {"LASTDEAL":"CRUSH","LASTTAKE":"CRUSH"}
+        self.passives = []
+        
+
 
     def writeSelf(self):
         t = "STARTHERO\n"
@@ -141,7 +145,7 @@ class Hero:
         return self.name + " " + str(self.id)
 
 
-    def takeAction(self, source, action):
+    def takeAction(self, action, source, target):
         actionStr = ""
         if source != 0:
             if source == self:
@@ -165,6 +169,8 @@ class Hero:
     def checkAction(self,action):
         for x in self.buffs:
             x.takeAction(action)
+        for x in self.passives:
+            x.takeAction(action)
         
 
     def loadMovesList(self,data):
@@ -174,6 +180,10 @@ class Hero:
     def loadStatsList(self,data):
         for key, value in data.items():
             self.stats[key] = value
+
+    def loadPassiveList(self,data):
+        for key, value in data.items():
+            p = Passive(self,key)
 
     def loadTypeDamageList(self,data):
         for key, value in data.items():
@@ -210,13 +220,15 @@ class Hero:
     def canFight(self):
         if self.life == "ALIVE":
             return True
+        elif self.life == "UNDEAD":
+            if self.stats["HEALTH"] > 0:
+                return True
         return False
 
     def canUseMove(self):
         totalTrue = True
         for x in self.buffs:
             if x.do == "STUN":
-                print("Stunned")
                 totalTrue = False
             elif x.do == "SLEEP":
                 totalTrue = False
@@ -224,15 +236,17 @@ class Hero:
         return totalTrue
 
     def die(self):
-        self.life = "DEAD"
         self.ownerGame.gameAction("DIED",self,self)
-
+        self.life = "DEAD"
+        
     def checkHealth(self):
-        if self.stats["HEALTH"] <= 0:
-                self.stats["HEALTH"] = 0
+        
         if self.life == "ALIVE":
             if self.stats["HEALTH"] <= 0:
                 self.die()
+
+        if self.stats["HEALTH"] <= 0:
+                self.stats["HEALTH"] = 0
                 
     def getAllAlly(self):
         get = []
@@ -246,7 +260,7 @@ class Hero:
         get = []
         for x in self.ownerGame.players:
             for y in x:
-                if y.team != self.team:
+                if (y.team != self.team):
                     get.append(y)
         return get
 
@@ -381,14 +395,16 @@ class Hero:
         moveName = moveName.upper()
         found = False
         for x in self.moves:
-            if x.name == moveName:
+            if x.name.upper() == moveName.upper():
                 found = True
                 x.use(self,target)
         if not found:
             self.addMoveMeta(moveName)
             for x in self.metaMoves:
-                if x.name == moveName:
+                if x.name.upper() == moveName.upper():
                     x.use(self,target)
+            
+
     def playMsg(self,msg):
         print(msg)
 
@@ -400,8 +416,8 @@ class Hero:
                         if x.name == moveName: 
                             msg = self.getDisplayName() + " used " + moveName + " on " + target.getDisplayName()
                             self.ownerGame.addMessageQ(msg,1)
-                            self.ownerGame.gameAction("USEMOVE",self,target)
                             self.activateMove(moveName,target)
+                            self.ownerGame.gameAction("USEMOVE",self,target)
                 else:
                     self.playMsg("{0} cannot use moves".format(self.getDisplayName()))
             else:
