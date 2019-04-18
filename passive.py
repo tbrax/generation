@@ -14,9 +14,10 @@ class Passive:
         self.value = []
         self.taken = []
         self.targets = []
-        self.addSelf()
         self.desc = ""
         self.loaded = 0
+        self.addSelf()
+        
         
     def describe(self):
         return self.desc
@@ -94,7 +95,6 @@ class Passive:
                     if lookName.upper() == self.name.upper():
                         self.loaded = 1
                         found = 1
-                
                 if line.startswith("ENDPASSIVE"): 
                     found = 0
                     state = 0
@@ -122,8 +122,9 @@ class Passive:
         for filename in os.listdir("moveFolder"):
             try:
                 self.loadFromFile("moveFolder\\" + filename)
-            except:
-                print("Error loading file " + filename)
+            except Exception as e:
+                print("Error loading passive file " + filename)
+                print(e)
 
     def createPassive(self):    
         self.searchFiles()

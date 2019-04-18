@@ -2,8 +2,8 @@ STARTHERO
 NAME=Dennis
 MOVES={"Punch": 1, "Blind Swipe": 1, "Open Wound": 1,"Side Swipe": 1,"Critical Lunge": 1, "Speed Strike": 1, "Half Hit": 1}
 STATS={"DAMAGE": 0, "SPEED": 7}
-PASSIVE={"passive":1}
 TYPERACE=Human
+PASSIVE={"chancetoshoot":1}
 ENDHERO
 
 STARTMOVE
@@ -18,9 +18,10 @@ NAME=passive2
 DO={"TYPE":"STAT","TARGET":"ALLENEMY","VALUE":{"DAMAGE":"-10"}}
 ENDPASSIVE
 
+
 STARTPASSIVE
-NAME=passive
-DO={"TYPE":"USEMOVE","ACTIVATE":"SELFALLYDODGE","TARGET":"SELF","TRIGGERS":{"RANDOM":"15"},"VALUE":["Many Blast"]}
+NAME=chancetoshoot
+DO={"TYPE":"USEMOVE","ACTIVATE":"SELFALLYUSEMOVE","TARGET":"SELF","TRIGGERS":{"RANDOM":"15"},"VALUE":["Many Blast"]}
 DESC= Have a 15% chance when using a move to fire a blast at all enemies
 ENDPASSIVE
 

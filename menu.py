@@ -80,11 +80,13 @@ class Menu:
     def searchFiles(self):
         self.savedHeros = []
         for filename in os.listdir("moveFolder"):
+            #self.loadFromFile("moveFolder\\" + filename)
             try:
                 self.loadFromFile("moveFolder\\" + filename)
             except Exception as e:
-                print("Error loading file " + filename)
+                print("Error loading menu file " + filename)
                 print(e)
+                #print("k")
 
     def addHero(self,h):
         self.savedHeros.append(h)
