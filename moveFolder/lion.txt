@@ -1,16 +1,22 @@
 STARTHERO
 NAME=Lion
-MOVES={"Pounce": 1, "Kick Up Dust": 1, "Open Wound": 1,"Side Swipe": 1,"Critical Lunge": 1, "Speed Strike": 1, "Half Hit": 1, "Bite Human": 1, "Mighty Roar": 1}
-STATS={"DAMAGE": 0, "SPEED": 7}
+MOVES={"Ambush": 1,"Ambush 2": 1, "Pounce": 1, "Kick Up Dust": 1, "Open Wound": 1,"Side Swipe": 1,"Critical Lunge": 1, "Speed Strike": 1, "Half Hit": 1, "Bite Human": 1, "Mighty Roar": 1}
+STATS={"SPEED": 7, "DODGE":15}
 TYPERESIST={"FIRE": -20, "COLD": -20}
 TYPEDAMAGE={"SLASH": 0, "PIERCE": 30}
 TYPERACE=Beast,Carnivore 
-PASSIVE={"pack hunter":1}
+PASSIVE={"counter attack":1}
 ENDHERO
 
 STARTPASSIVE
 NAME=pack hunter
-DO={"TYPE":"STAT","TARGET":"OTHERALLY","VALUE":{"DAMAGE":"13"},"TRIGGER": ["TARRACE[Beast]#e#=1"]}
+DO={"TYPE":"STAT","TARGET":"OTHERALLY","VALUE":{"DAMAGE":"13"},"TRIGGER":{"TARRACE[Beast]#e#":"1"}}
+ENDPASSIVE
+
+STARTPASSIVE
+NAME=counter attack
+DO={"TYPE":"USEMOVE","ACTIVATE":"SELFALLYDODGE","TARGET":"SELF","TRIGGER":{"RANDOM":"15"},"VALUE":["Side Swipe"]}
+DESC=Have a 15% chance when dodging to swipe at all enemies
 ENDPASSIVE
 
 STARTMOVE
@@ -28,7 +34,7 @@ ENDMOVE
 STARTMOVE
 NAME=Bite Human
 DESC=Deals double damage to humans
-DO={"DAMAGE": ["TYPE=Slash", "AMT=15 + 15*TARRACE[Human]","TARGET=SELECTED"], "TRIGGER": ["HIT=100"]}
+DO={"DAMAGE": ["TYPE=Slash", "AMT=15*(1+TARRACE[Human])","TARGET=SELECTED"], "TRIGGER": ["HIT=100"]}
 ENDMOVE
 
 STARTMOVE
@@ -69,6 +75,18 @@ STARTMOVE
 NAME=Open Wound
 DESC=Causes bleeding
 DO={"BUFF": ["TYPE=Bleedtick","TARGET=SELECTED","NAME=Bleeding","DUR=4","COUNTTRI=SELFALLYENDTURN","DO=USEMOVE","ACT=EACHCOUNT"], "TRIGGER": ["ALWAYS"]}
+ENDMOVE
+
+STARTMOVE
+NAME=Ambush
+DESC=Deals more damage in grass
+DO={"DAMAGE": ["TYPE=SLASH", "AMT=5+5*TERRAIN[GRASS]","TARGET=SELECTED"], "TRIGGER": ["HIT=100"]}
+ENDMOVE
+
+STARTMOVE
+NAME=Ambush 2
+DESC=Deals more damage at night
+DO={"DAMAGE": ["TYPE=SLASH", "AMT=5+5*DAY[NIGHT]","TARGET=SELECTED"], "TRIGGER": ["HIT=100"]}
 ENDMOVE
 
 STARTMOVE

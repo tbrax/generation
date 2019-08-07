@@ -3,7 +3,7 @@ import json
 
 class Passive:
     def __init__(self,owner,name):
-        self.source = owner   
+        self.source = owner
         self.maxCount = 0
         self.count = 0
         self.name = name
@@ -17,6 +17,7 @@ class Passive:
         self.desc = ""
         self.loaded = 0
         self.addSelf()
+        self.sanityCounter = 1
         
         
     def describe(self):
@@ -74,12 +75,15 @@ class Passive:
             self.activate = dat["ACTIVATE"]
         if ("TARGET" in dat):
             self.targetChoose = dat["TARGET"]
-        if ("TRIGGERS" in dat):
-            self.triggers = dat["TRIGGERS"]
+        if ("TRIGGER" in dat):
+            self.triggers = dat["TRIGGER"]
         if ("VALUE" in dat):
             self.value = dat["VALUE"]
         if ("COUNT" in dat):
             self.maxCount = int(dat["COUNT"])
+
+    def errorMsg(self,m):
+        print(m)
 
     def loadFromFile(self,f):
         file = open(f, "r") 
@@ -87,6 +91,10 @@ class Passive:
         state = 0
         for line in file:  
             if state == 1:
+
+                if line.startswith("STARTPASSIVE"):
+                    self.errorMsg("Error loading multiple passive in {0} (Did you forget to ENDPASSIVE)".format(f))
+
                 if line.startswith("NAME="): 
                     
                     lookName = line.replace("NAME=","")
@@ -154,22 +162,26 @@ class Passive:
 
     def doTrigger(self):
         if self.do == "USEMOVE":
-            self.targets = []
-            self.targets = self.getAffected()
-            for x in self.targets:
-                if x.canFight():
-                    for y in self.value:
-                        msg = "{0} activated {1}".format(self.source.getDisplayName(),y)
-                        self.source.ownerGame.addMessageQ(msg,1)
-                        x.activateMove(y,x)
+            if self.sanityCounter > 0:
+                self.targets = []
+                self.targets = self.getAffected()
+                for x in self.targets:
+                    if x.canFight():
+                        for y in self.value:
+                            msg = "{0} activated {1}".format(self.source.getDisplayName(),y)
+                            self.source.ownerGame.addMessageQ(msg,1)
+                            self.sanityCounter -=1
+                            x.activateMove(y,x)
          
         
     def takeAction(self,action):
+        if "FINISHMOVE" in action:
+            self.sanityCounter = 1
         if self.do == "STAT":
             self.update()
-        elif self.do == "TYPE":
+        elif self.do == "USEMOVE":
+            
             if self.activate in action:
-
                 self.checkActivate()
 
 

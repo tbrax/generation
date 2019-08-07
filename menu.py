@@ -20,6 +20,7 @@ class Menu:
         self.display = 0
         self.matched = {}
         self.numWords = 30
+        self.heroNames = []
         
 
 
@@ -75,7 +76,9 @@ class Menu:
         #print("g5")
         self.searchFiles()
         #print("g6")
-        
+
+    def addName(self):
+        self.heroNames.append("")
 
     def searchFiles(self):
         self.savedHeros = []

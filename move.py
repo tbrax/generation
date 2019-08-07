@@ -49,13 +49,18 @@ class Move:
                     state = 1
 
 
-    def searchFiles(self):
-        
-        for filename in os.listdir("moveFolder"):
-            try:
-                self.loadFromFile("moveFolder\\" + filename)
-            except:
-                print("Error loading file " + filename)
+    def searchFiles(self,char):
+        try:
+            self.loadFromFile("moveFolder\\" + char +".txt")
+        except:
+            print("Error loading file " + char)
+
+        if self.loaded != 2:
+            for filename in os.listdir("moveFolder"):
+                try:
+                    self.loadFromFile("moveFolder\\" + filename)
+                except:
+                    print("Error loading file " + filename)
         
     def describe(self):
         d = self.desc
@@ -69,8 +74,8 @@ class Move:
                     
         return d
 
-    def createMove(self):    
-        self.searchFiles()
+    def createMove(self,char):    
+        self.searchFiles(char)
         
 
     def use(self,user,target):

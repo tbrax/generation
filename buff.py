@@ -69,8 +69,7 @@ class Buff:
 
             for idx,x in enumerate(self.trigger):
                 v = self.source.parseNum(self.target,self.source,self.value[idx])
-                if (x not in self.target.stats):
-                    self.target.stats[x] = 0
+                self.target.statExist(x)
                 self.target.stats[x] += v
                 self.taken[idx] -= v
         

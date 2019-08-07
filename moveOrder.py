@@ -42,6 +42,9 @@ class MoveOrder:
                 b.trigger.append(self.type)
                 b.value.append(self.heldValue)
                 b.startBuff()
+
+            elif self.am == "Other":
+                user.otherAction(target,self.type,self.heldValue)
             elif self.am == "TARGET":
                 user.lastTarget.append(target)
                 
@@ -96,6 +99,16 @@ class MoveOrder:
                         self.metaInfo["do"] = x[3:]
                     elif x.startswith("ACT="):
                         self.metaInfo["act"] = x[4:]
+
+            elif key == "OTHER":
+                self.am = key
+                for x in value:
+                    if x.startswith("AMT="):
+                        self.heldValue = x[4:]
+                    elif x.startswith("TYPE="):
+                        self.type = x[5:].upper()
+                    elif x.startswith("TARGET="):
+                        self.tar = x[7:]
             elif key == "TARGET":
                 self.am = key
                 for x in value:

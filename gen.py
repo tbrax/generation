@@ -287,12 +287,18 @@ class Gen:
         d+=str(damage)
         self.addToDesc("{0} ".format(d))
 
-        bonusAttributesList = {"NONE":1,"AMTRANDOM":0.1,"AMTTURN":0.06}
+        bonusAttributesList = {"NONE":1,"AMTRANDOM":0.1,
+                                "AMTTURN":0.06,"AMTUSERLOW":0.07,
+                                "AMTUSERHIGH":0.07,"AMTTARGETLOW":0.07,
+                                "AMTTARGETHIGH":0.07}
         for k, v in self.moveMech.items():
             if (k.startswith("STATPLUS") or 
                 k.startswith("MECHBUFF") or 
                 k.startswith("STRONGVS")):
-                bonusAttributesList[k] = v
+                if (k in bonusAttributesList):
+                    bonusAttributesList[k]+=v
+                else:
+                    bonusAttributesList[k] = v
 
         bonusAttributes = self.randomWeightDict(bonusAttributesList)
         bonusTx = ""
@@ -588,10 +594,11 @@ class Gen:
     def smallDo(self,myDo):
         rt = "DO="
         dc = {}
+        smRatio = float(random.randint(20,40)/100)
         if myDo == "DAMAGE":
-            dc = self.strDamage("SELECTED",True,sc=0.4)
+            dc = self.strDamage("SELECTED",True,sc=smRatio)
         elif myDo == "HEAL":
-            dc = self.strDamage("SELECTED",False,sc=0.4)
+            dc = self.strDamage("SELECTED",False,sc=smRatio)
 
         dc["TRIGGER"] = ["ALWAYS"]
         rt += json.dumps(dc)

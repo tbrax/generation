@@ -27,6 +27,9 @@ class Game:
         self.turnOrder = []
         self.turnCurrent = 0
         self.round = 0
+        self.terrain = ["Grave"]
+        self.day = 1
+        self.dayCount = 6
         
     def checkGeneralTrigger(self,key,value,user,target):
         totalTrue = True
@@ -36,6 +39,7 @@ class Game:
             if tmpTrue == False:
                 totalTrue = False
                 user.ownerGame.gameAction("MISS",user,target)
+                target.ownerGame.gameAction("DODGE",target,user)
         elif key == "RANDOM":
             s = user.parseNum(target,user,value)
             if s < random.randint(0,101):
@@ -151,8 +155,6 @@ class Game:
             
             self.calcTurn()
             
-            
-
     def endTurn(self):
         self.gameAction("ENDTURN",self.turnOrder[self.turnCurrent],self.turnOrder[self.turnCurrent])
         
@@ -201,7 +203,11 @@ class Game:
             for y in x:
                 self.turnOrder.append(y) 
         self.turnOrder = self.turnOrder = sorted(self.turnOrder, reverse=True,key=lambda v: (v.parseNum(v,v,v.stats["SPEED"]), random.random()))
-        self.gameAction("STARTROUND",0,0)
+        self.round +=1
+        self.day += 1
+        if self.day > self.dayCount:
+            self.day = 1
+        self.gameAction("STARTROUND",0,0) 
         self.startPlayerTurn(self.turnOrder[self.turnCurrent])
         
 
@@ -210,15 +216,16 @@ class Game:
             s = "{0} turn".format(target.getDisplayName())
             self.addMessageQ(s,3)
         elif action == "STARTROUND":
-            self.round +=1
             s = "ROUND {0}".format(self.round)
             self.addMessageQ(s,4)
         elif action == "DIED":
-            self.round +=1
             s = "{0} has died".format(target.getDisplayName())
             self.addMessageQ(s,4)
         elif action == "MISS":
             s = "Miss on {0}".format(target.getDisplayName())
+            self.addMessageQ(s,1)
+        elif action == "CHANGETERRAIN":
+            s = "Terrain changed to {0}".format(self.terrain[0])
             self.addMessageQ(s,1)
         
 
@@ -319,16 +326,16 @@ class Game:
                     x.useMove(trueMove,x)
 
     def loadPassive(self,name,user):
-        newPassive = Passive(user)
+        newPassive = Passive(user,name)
         
         return newPassive
 
-    def loadMove(self,name):
+    def loadMove(self,name,char):
         
         newMove = Move(name)
         #newMove.name = name.upper()
 
-        newMove.createMove()
+        newMove.createMove(char)
         if newMove.loaded != 2:
             return 0
         return newMove
